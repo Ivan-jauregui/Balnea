@@ -19,7 +19,6 @@ public class SeaSideResortService {
     private final SeaSideResortRepository repository;
     private final MapperSeaSideResort mapper;
 
-
     public SeaSideResortResponse save(SeaSideResortRequest request) {
         SeaSideResort resort = mapper.toEntity(request);
 

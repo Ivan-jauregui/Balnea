@@ -1,17 +1,14 @@
 package com.balneamdp.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
-@Getter @Setter @AllArgsConstructor @NoArgsConstructor
+@Builder @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class SeaSideResort {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,4 +41,6 @@ public class SeaSideResort {
 
     @Column(nullable = false)
     private LocalDateTime created_at;
+
+
 }

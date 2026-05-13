@@ -6,13 +6,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.Set;
 
+@Builder
+@Getter  @AllArgsConstructor  @NoArgsConstructor
 public class SeaSideResortRequest {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long id;
 
     @NotBlank(message = "Name is required")
@@ -22,16 +24,16 @@ public class SeaSideResortRequest {
     @Size(min = 50 ,max = 200)
     private String description;
 
-    @NotBlank(message = "Adress is required")
+    @NotBlank(message = "Address is required")
     private String address;
 
     @NotNull(message = "Price is required")
     private BigDecimal price;
 
 
-    @NotBlank(message = "Latitude is required")
+    @NotNull(message = "Latitude is required")
     private Double latitude;
-    @NotBlank(message = "Longitude is required")
+    @NotNull(message = "Longitude is required")
     private Double longitude;
 
     @NotEmpty(message = "Amenities is required")
