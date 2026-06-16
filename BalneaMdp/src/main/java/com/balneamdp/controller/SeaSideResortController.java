@@ -18,7 +18,7 @@ import java.util.List;
 public class SeaSideResortController {
     private final SeaSideResortService service;
 
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<SeaSideResortResponse> save(@Valid @RequestBody SeaSideResortRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(service.save(request));
     }

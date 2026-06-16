@@ -2,7 +2,7 @@ package com.balneamdp.service;
 
 import com.balneamdp.DTO.SeaSideResortRequest;
 import com.balneamdp.DTO.SeaSideResortResponse;
-import com.balneamdp.exceptions.RecourseNotFoundException;
+import com.balneamdp.exceptions.ResourseNotFoundException;
 import com.balneamdp.mapper.MapperSeaSideResort;
 import com.balneamdp.models.SeaSideResort;
 import com.balneamdp.repository.SeaSideResortRepository;
@@ -31,7 +31,7 @@ public class SeaSideResortService {
 
     public void deleteByName(String name) {
         SeaSideResort resort = repository.findByName(name)
-                .orElseThrow(() -> new RecourseNotFoundException("Balneario con nombre " + name + " no encontrado"));
+                .orElseThrow(() -> new ResourseNotFoundException("Balneario con nombre " + name + " no encontrado"));
 
         repository.delete(resort);
     }
@@ -40,7 +40,7 @@ public class SeaSideResortService {
     public SeaSideResortResponse findByName(String name) {
         return repository.findByName(name)
                 .map(mapper::toDto)
-                .orElseThrow(() -> new RecourseNotFoundException("Balneario no encontrado"));
+                .orElseThrow(() -> new ResourseNotFoundException("Balneario no encontrado"));
     }
 
 

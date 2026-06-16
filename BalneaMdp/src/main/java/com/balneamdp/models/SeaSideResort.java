@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -38,6 +39,9 @@ public class SeaSideResort {
             inverseJoinColumns = @JoinColumn(name = "amenities_id")
     )
     private Set<Amenity> amenities;
+
+    @OneToMany(mappedBy = "seaSideResort")
+    private List<Comments> comments;
 
     @Column(nullable = false)
     private LocalDateTime created_at;

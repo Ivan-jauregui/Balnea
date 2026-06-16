@@ -1,4 +1,7 @@
 package com.balneamdp.repository;
 
-public interface CommentsRepository {
+import com.balneamdp.models.Comments;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CommentsRepository extends JpaRepository<Comments,Long> {
 }

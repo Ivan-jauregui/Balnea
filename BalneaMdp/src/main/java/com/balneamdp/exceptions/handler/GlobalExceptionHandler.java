@@ -1,11 +1,10 @@
 package com.balneamdp.exceptions.handler;
 
-import com.balneamdp.exceptions.RecourseNotFoundException;
+import com.balneamdp.exceptions.ResourseNotFoundException;
 import com.balneamdp.exceptions.ressponse.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -39,8 +38,8 @@ public class GlobalExceptionHandler {
         return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    @ExceptionHandler(RecourseNotFoundException.class)
-    private ResponseEntity<ErrorResponseDTO> handlerRecourseNotFoundException(RecourseNotFoundException ex,HttpServletRequest request){
+    @ExceptionHandler(ResourseNotFoundException.class)
+    private ResponseEntity<ErrorResponseDTO> handlerRecourseNotFoundException(ResourseNotFoundException ex, HttpServletRequest request){
         ErrorResponseDTO response = new ErrorResponseDTO(
                 404,
                 HttpStatus.NOT_FOUND.getReasonPhrase(),
