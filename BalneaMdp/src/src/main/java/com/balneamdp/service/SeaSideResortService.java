@@ -8,14 +8,9 @@ import com.balneamdp.exceptions.ResourseNotFoundException;
 import com.balneamdp.mapper.CommentMapper;
 import com.balneamdp.mapper.MapperSeaSideResort;
 import com.balneamdp.mapper.UserMapper;
-import com.balneamdp.models.Amenity;
-import com.balneamdp.models.Comments;
-import com.balneamdp.models.SeaSideResort;
-import com.balneamdp.models.User;
-import com.balneamdp.repository.AmenityRepository;
-import com.balneamdp.repository.CommentsRepository;
-import com.balneamdp.repository.SeaSideResortRepository;
-import com.balneamdp.repository.UserRepository;
+import com.balneamdp.models.*;
+import com.balneamdp.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +27,7 @@ public class SeaSideResortService {
     private final AmenityRepository amenityRepository;
     private final UserRepository userRepository;
     private final CommentsRepository commentsRepository;
+    private final UnitRepository unitRepository;
     private final MapperSeaSideResort mapper;
     private final UserMapper userMapper;
     private final CommentMapper commentMapper;
@@ -95,4 +91,48 @@ public class SeaSideResortService {
                 .map(commentMapper::toDto)
                 .toList();
     }
+
+    @Transactional
+    public List<Unit> createUnits(Long id,int start,int quantity){
+        for(int i=0;i<quantity;i++){
+            Unit newUnit=new Unit();
+            newUnit.setNumber(start + i);
+            newUnit.setInMaintenance(false);
+            newUnit.setPayState(PayState.PENDIENTE);
+            newUnit.setSeaSideResort(seaSideResortRepository.findById(id).get());
+            unitRepository.save(newUnit);
+        }
+        return getUnits(id);
+    }
+
+    public List<Unit> getUnits(Long id){
+        return unitRepository.findAllBySeaSideResortId(id);
+    }
+
+
+    public List<Unit> getAllPendingUnits(Long id) {
+        SeaSideResort seaSideResort = seaSideResortRepository.findById(id)
+                .orElseThrow(() -> new ResourseNotFoundException("Balneario no fue encontrado"));
+
+        return seaSideResort.getUnits().stream()
+                .filter(u -> u.getPayState() == PayState.PENDIENTE)
+                .toList();
+    }
+    public List<Unit> getAllPaidUnits(Long id){
+        SeaSideResort seaSideResort = seaSideResortRepository.findById(id)
+                .orElseThrow(() -> new ResourseNotFoundException("Balneario no fue encontrado"));
+
+        return seaSideResort.getUnits().stream()
+                .filter(u-> u.getPayState()== PayState.SEÑADO)
+                .toList();
+    }
+    public List<Unit> getAllMarkedUnits(Long id){
+        SeaSideResort seaSideResort = seaSideResortRepository.findById(id)
+                .orElseThrow(() -> new ResourseNotFoundException("Balneario no fue encontrado"));
+
+        return seaSideResort.getUnits().stream()
+                .filter(u-> u.getPayState()== PayState.PAGADO)
+                .toList();
+    }
+
 }

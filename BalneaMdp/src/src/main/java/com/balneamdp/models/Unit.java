@@ -1,23 +1,27 @@
 package com.balneamdp.models;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.List;
-
+@Entity
+@Builder @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class Unit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Integer fila;
-    private Integer numero;
+    private Integer number;
 
-    private boolean enMantenimiento;
+    private boolean inMaintenance;
 
-    // Relación para saber sus reservas
-    @OneToMany(mappedBy = "unidad")
-    private List<Reservation> reservas;
+    @Enumerated(EnumType.STRING)
+    private PayState payState; // PAGADO, SEÑADO, PENDIENTE
+
+    @ManyToOne
+    @JoinColumn(name="seasideresort_id")
+    @JsonIgnore
+    private SeaSideResort seaSideResort;
+
 }

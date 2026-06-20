@@ -43,6 +43,9 @@ public class SeaSideResort {
     @OneToMany(mappedBy = "seaSideResort")
     private List<Comments> comments;
 
+    @OneToMany(mappedBy = "seaSideResort",cascade = CascadeType.ALL)
+    private List<Unit> units;
+
     @ManyToMany
     @JoinTable(
             name = "seasideresort_clients",
@@ -54,6 +57,8 @@ public class SeaSideResort {
     @OneToOne()
     @JoinColumn(name = "owner_id",referencedColumnName = "id")
     private User owner;
+
+
 
     @Column(nullable = false)
     private LocalDateTime created_at;
