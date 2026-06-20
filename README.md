@@ -1,36 +1,34 @@
-🌊 BalneaMDP
-Sistema de gestión integral para balnearios en Mar del Plata. Optimiza la reserva de unidades, la administración de clientes y el control operativo de los servicios ofrecidos.
+<div align="center">
 
-🚀 Tecnologías Utilizadas
-Backend
-Java 17+
+# 🌊 BalneaMDP
+**Sistema integral de gestión para balnearios en Mar del Plata**
 
-Spring Boot 3.x
+[![](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)]()
+[![](https://img.shields.io/badge/Angular-17+-red.svg)]()
+[![](https://img.shields.io/badge/Java-17-blue.svg)]()
 
-Spring Security (JWT)
+</div>
 
-Spring Data JPA (Hibernate)
+---
 
-MapStruct (Mapeo de DTOs)
+### 🛠 Tecnologías Principales
+<br>
 
-Lombok (Reducción de boilerplate)
+<div align="center">
 
-MySQL (Base de datos)
+| Backend | Frontend | Base de Datos |
+| :---: | :---: | :---: |
+| <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/java/java-original.svg" width="40" height="40"/> | <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/angularjs/angularjs-original.svg" width="40" height="40"/> | <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/mysql/mysql-original.svg" width="40" height="40"/> |
+| **Spring Boot** | **Angular** | **MySQL** |
 
-Frontend
-Angular 17+
+</div>
 
-RxJS
+<br>
 
-Tailwind CSS (o Material UI)
-
-🛠 Características Principales
-Gestión de Reservas: Sistema de asignación de unidades con validación de disponibilidad.
-
-Seguridad Multi-rol: Diferenciación entre administradores de balneario, dueños y usuarios finales.
-
-Panel de Control (Dashboard): Visualización intuitiva de clientes y estados de pago.
-
-Gestión de Unidades: Creación masiva de unidades y control de mantenimiento.
-
-Autenticación Segura: Manejo de sesiones mediante tokens JW
+### 🚀 Características
+<ul>
+  <li><b>Gestión Multi-rol:</b> Diferenciación segura entre administradores, dueños y clientes.</li>
+  <li><b>Arquitectura Escalable:</b> Patrón de capas (Controller -> Service -> Repository).</li>
+  <li><b>Seguridad Robusta:</b> Protección de rutas (Guards) y endpoints (JWT + Spring Security).</li>
+  <li><b>Dashboard Dinámico:</b> Flujo inteligente para la selección y gestión de balnearios.</li>
+</ul>
