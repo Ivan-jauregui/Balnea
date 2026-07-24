@@ -3,6 +3,7 @@ package com.balneamdp.controller;
 import com.balneamdp.DTO.SeaSideResortRequest;
 import com.balneamdp.DTO.SeaSideResortResponse;
 import com.balneamdp.DTO.request.ReservationRequestDto;
+import com.balneamdp.DTO.request.SeaSideResortFilterDto;
 import com.balneamdp.DTO.response.CommentResponseDto;
 import com.balneamdp.DTO.response.ReservationResponseDto;
 import com.balneamdp.models.Amenity;
@@ -15,6 +16,7 @@ import com.balneamdp.service.ReservationService;
 import com.balneamdp.service.SeaSideResortService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -70,6 +72,14 @@ public class SeaSideResortController {
         return ResponseEntity.ok(service.getUnits(id));
     }
 
+    @GetMapping
+    public ResponseEntity<Page<SeaSideResort>> getAll(
+            @ModelAttribute SeaSideResortFilterDto filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(service.getSeaSideResorts(filter, page, size));
+    }
 
     @GetMapping("/search/{name}")
     public ResponseEntity<SeaSideResortResponse> findByName(@RequestParam String name){

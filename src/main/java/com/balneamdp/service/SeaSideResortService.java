@@ -2,6 +2,7 @@ package com.balneamdp.service;
 
 import com.balneamdp.DTO.SeaSideResortRequest;
 import com.balneamdp.DTO.SeaSideResortResponse;
+import com.balneamdp.DTO.request.SeaSideResortFilterDto;
 import com.balneamdp.DTO.response.CommentResponseDto;
 import com.balneamdp.DTO.response.UserResponseDto;
 import com.balneamdp.exceptions.ResourseNotFoundException;
@@ -10,10 +11,15 @@ import com.balneamdp.mapper.MapperSeaSideResort;
 import com.balneamdp.mapper.UserMapper;
 import com.balneamdp.models.*;
 import com.balneamdp.repository.*;
+import com.balneamdp.repository.specification.SeaSideResortSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Page;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -65,6 +71,24 @@ public class SeaSideResortService {
 
         seaSideResortRepository.delete(resort);
     }
+
+
+
+
+    public Page<SeaSideResort> getSeaSideResorts(SeaSideResortFilterDto filter, int page, int size) {
+        Specification<SeaSideResort> spec = SeaSideResortSpecification.byFilter(filter);
+
+        // Definimos la dirección según lo que venga en el DTO
+        Sort.Direction direction = "DESC".equalsIgnoreCase(filter.getSortByPrice())
+                ? Sort.Direction.DESC
+                : Sort.Direction.ASC;
+
+        // Armamos el Pageable incluyendo el orden por "price"
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "price"));
+
+        return seaSideResortRepository.findAll(spec, pageable);
+    }
+
 
 
     public SeaSideResortResponse findByName(String name) {
