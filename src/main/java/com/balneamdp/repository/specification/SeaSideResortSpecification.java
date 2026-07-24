@@ -13,6 +13,10 @@ public class SeaSideResortSpecification {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            if(filter==null){
+                return null;
+            }
+
 
             if (filter.getName() != null && !filter.getName().isBlank()) {
 
@@ -27,6 +31,9 @@ public class SeaSideResortSpecification {
                 predicates.add(cb.like(cb.lower(root.get("zone")), zoneSubstring));
             }
 
+            if(predicates.isEmpty()){
+                return null;
+            }
 
             return cb.and(predicates.toArray(new Predicate[0]));
         };

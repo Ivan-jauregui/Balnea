@@ -75,18 +75,15 @@ public class SeaSideResortService {
 
 
 
-    public Page<SeaSideResort> getSeaSideResorts(SeaSideResortFilterDto filter, int page, int size) {
+    public Page<SeaSideResortResponse> getSeaSideResorts(SeaSideResortFilterDto filter, int page, int size) {
+        if (filter == null) {
+            filter = new SeaSideResortFilterDto();
+        }
+
         Specification<SeaSideResort> spec = SeaSideResortSpecification.byFilter(filter);
+        Pageable pageable = PageRequest.of(page, size);
 
-        // Definimos la dirección según lo que venga en el DTO
-        Sort.Direction direction = "DESC".equalsIgnoreCase(filter.getSortByPrice())
-                ? Sort.Direction.DESC
-                : Sort.Direction.ASC;
-
-        // Armamos el Pageable incluyendo el orden por "price"
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "price"));
-
-        return seaSideResortRepository.findAll(spec, pageable);
+        return seaSideResortRepository.findAll(spec, pageable).map(mapper::toDto);
     }
 
 

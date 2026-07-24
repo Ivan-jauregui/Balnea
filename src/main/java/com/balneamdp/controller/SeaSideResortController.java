@@ -73,11 +73,11 @@ public class SeaSideResortController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<SeaSideResort>> getAll(
-            @ModelAttribute SeaSideResortFilterDto filter,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            public ResponseEntity<Page<SeaSideResortResponse>> getAll(
+                    @ModelAttribute SeaSideResortFilterDto filter,
+                    @RequestParam(defaultValue = "0") int page,
+                    @RequestParam(defaultValue = "10") int size
+            ) {
         return ResponseEntity.ok(service.getSeaSideResorts(filter, page, size));
     }
 
@@ -91,10 +91,10 @@ public class SeaSideResortController {
         return ResponseEntity.ok(service.findById(id));
     }
 
-    @GetMapping
+    /*@GetMapping
     public ResponseEntity<List<SeaSideResortResponse>> findAll(){
         return  ResponseEntity.ok(service.findAll());
-    }
+    }*/
 
 
     @GetMapping("/{id}/comments")

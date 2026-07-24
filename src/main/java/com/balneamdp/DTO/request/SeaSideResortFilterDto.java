@@ -1,14 +1,11 @@
 package com.balneamdp.DTO.request;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-import java.math.BigDecimal;
 
-@Getter
+@Data
 public class SeaSideResortFilterDto {
     private String name;
     private String zone;
-    // ordenar por precio: "ASC" (menor a mayor) o "DESC" (mayor a menor)
-    private String sortByPrice;
+
 }
