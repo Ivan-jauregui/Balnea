@@ -1,5 +1,7 @@
 package com.balneamdp.service;
 
+import com.balneamdp.DTO.response.UserResponseDto;
+import com.balneamdp.exceptions.ResourseNotFoundException;
 import com.balneamdp.mapper.UserMapper;
 import com.balneamdp.models.SeaSideResort;
 import com.balneamdp.models.User;
@@ -29,5 +31,11 @@ public class UserService {
     @Transactional
     public boolean registerUserForResort(User user,SeaSideResort seaSideResort){
         return seaSideResort.getClients().add(user);
+    }
+
+    public UserResponseDto findByEmail(String email){
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourseNotFoundException("Usuario no encontrado: "));;
+        return userMapper.toDto(user);
     }
 }

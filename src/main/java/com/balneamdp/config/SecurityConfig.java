@@ -30,8 +30,8 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth->auth
 
-                                .requestMatchers("/api/v1/**").permitAll()
-                                .anyRequest().permitAll()
+                                .requestMatchers("/api/auth/**", "/api/v1/auth/**").permitAll() // 👈 Permite registro y login sin JWT
+                                .anyRequest().authenticated()
 
                         )
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

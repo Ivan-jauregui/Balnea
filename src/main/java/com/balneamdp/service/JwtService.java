@@ -19,7 +19,7 @@ import java.util.function.Function;
 @Service
 public class JwtService {
     private static final String SECRET_KEY="3c9a65b7a1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8";
-    private static final long JWT_EXPIRATION=86400000;
+    private static final long JWT_EXPIRATION=900000; // 15 min
 
     private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);

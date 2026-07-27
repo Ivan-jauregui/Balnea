@@ -1,5 +1,6 @@
 package com.balneamdp.service;
 
+import com.balneamdp.exceptions.ResourseNotFoundException;
 import com.balneamdp.models.CustomUserDetails;
 import com.balneamdp.models.User;
 import com.balneamdp.repository.UserRepository;
@@ -17,7 +18,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(username);
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new ResourseNotFoundException("Usuario no encontrado: " + username));;
 
         return new CustomUserDetails(user);
     }

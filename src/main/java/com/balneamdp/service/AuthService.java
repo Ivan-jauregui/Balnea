@@ -1,11 +1,13 @@
 package com.balneamdp.service;
 
+import com.balneamdp.DTO.request.RefreshTokenRequestDto;
 import com.balneamdp.DTO.request.UserLoginRequestDto;
 import com.balneamdp.DTO.request.UserRegisterRequestDto;
 import com.balneamdp.DTO.response.AuthResponseDto;
 import com.balneamdp.DTO.response.UserResponseRegisterDto;
 import com.balneamdp.mapper.RegisterMapper;
 import com.balneamdp.models.CustomUserDetails;
+import com.balneamdp.models.RefreshToken;
 import com.balneamdp.models.Role;
 import com.balneamdp.models.User;
 import com.balneamdp.repository.RoleRepository;
@@ -15,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +31,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RegisterMapper registerMapper;
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
@@ -45,11 +49,13 @@ public class AuthService {
         CustomUserDetails userDetails=(CustomUserDetails) authentication.getPrincipal();
 
         //Generando token
-        String token = jwtService.generateToken(userDetails);
+        String accessToken = jwtService.generateToken(userDetails);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
 
 
         return new AuthResponseDto(
-                token
+                accessToken,
+                refreshToken.getToken()
         );
     }
 
@@ -69,11 +75,26 @@ public class AuthService {
 
         CustomUserDetails userDetails = new CustomUserDetails(userRepository.save(user));
 
-        String token = jwtService.generateToken(userDetails);
+        //Generando token
+        String accessToken = jwtService.generateToken(userDetails);
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
+
 
         return new AuthResponseDto(
-                token
+                accessToken,
+                refreshToken.getToken()
         );
+    }
+
+    public AuthResponseDto refreshToken(RefreshTokenRequestDto request) {
+        return refreshTokenService.findByToken(request.getRefreshToken())
+                .map(refreshTokenService::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String newAccessToken = jwtService.generateToken((UserDetails) user);
+                    return new AuthResponseDto(newAccessToken, request.getRefreshToken());
+                })
+                .orElseThrow(() -> new RuntimeException("Refresh Token inválido o inexistente"));
     }
 
     // Metodo para cargar user con cualquier rol manualmente

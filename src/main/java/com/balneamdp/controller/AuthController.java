@@ -1,5 +1,6 @@
 package com.balneamdp.controller;
 
+import com.balneamdp.DTO.request.RefreshTokenRequestDto;
 import com.balneamdp.DTO.request.UserLoginRequestDto;
 import com.balneamdp.DTO.request.UserRegisterRequestDto;
 import com.balneamdp.DTO.response.AuthResponseDto;
@@ -26,5 +27,10 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponseDto> register(@Valid @RequestBody UserRegisterRequestDto registerRequest){
         return ResponseEntity.ok(service.register(registerRequest));
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<AuthResponseDto> refreshToken(@RequestBody RefreshTokenRequestDto request) {
+        return ResponseEntity.ok(service.refreshToken(request));
     }
 }

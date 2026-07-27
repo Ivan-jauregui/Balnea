@@ -3,6 +3,7 @@ package com.balneamdp.DTO.response;
 import com.balneamdp.models.Role;
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -14,4 +15,5 @@ public class UserResponseDto {
     private String firstName;
     private String lastName;
     private String email;
+    private List<Role> roles;
 }
