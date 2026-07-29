@@ -25,6 +25,8 @@ public class UserController {
         }
         UserResponseDto currentUser = userService.findByEmail(userDetails.getUsername());
 
+
+
         return ResponseEntity.ok(currentUser);
     }
 }
