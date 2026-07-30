@@ -47,7 +47,7 @@ public class SeaSideResort {
     private List<Comments> comments;
 
     @OneToMany(mappedBy = "seaSideResort",cascade = CascadeType.ALL)
-    private List<Unit> units;
+    private List<Row> rows;
 
     @ManyToMany
     @JoinTable(
@@ -63,6 +63,10 @@ public class SeaSideResort {
 
     private String imageUrl;
     private String imagePublicId;
+
+    private LocalDateTime startDate; //Fecha de apertura del Balneario
+
+    private LocalDateTime endDate; //Fecha de cierre del Balneario
 
     @Column(nullable = false)
     private LocalDateTime created_at;

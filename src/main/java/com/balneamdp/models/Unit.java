@@ -1,10 +1,10 @@
 package com.balneamdp.models;
 
+import com.balneamdp.enums.PayState;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
 @Entity
 @Builder @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class Unit {

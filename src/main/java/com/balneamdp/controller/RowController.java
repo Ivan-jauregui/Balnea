@@ -20,13 +20,13 @@ public class RowController {
         return ResponseEntity.status(HttpStatus.CREATED).body(rowService.save(request));
     }
 
-    @DeleteMapping("{/id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable  Long id){
         rowService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("{/id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Row> update(@RequestBody RowRequest request,@PathVariable  Long id){
         return ResponseEntity.ok(rowService.update(request,id));
     }

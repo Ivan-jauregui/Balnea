@@ -3,37 +3,19 @@ package com.balneamdp.mapper;
 import com.balneamdp.DTO.request.ReservationRequestDto;
 import com.balneamdp.DTO.response.ReservationResponseDto;
 import com.balneamdp.models.Reservation;
+import com.balneamdp.models.Row;
 import com.balneamdp.models.SeaSideResort;
-import com.balneamdp.models.Unit;
 import com.balneamdp.models.User;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoField;
 import javax.annotation.processing.Generated;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-07-29T12:51:00-0300",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 24.0.2 (Eclipse Adoptium)"
+    date = "2026-07-30T17:06:05-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 24.0.2 (Oracle Corporation)"
 )
 @Component
 public class ReservationMapperImpl implements ReservationMapper {
-
-    private final DatatypeFactory datatypeFactory;
-
-    public ReservationMapperImpl() {
-        try {
-            datatypeFactory = DatatypeFactory.newInstance();
-        }
-        catch ( DatatypeConfigurationException ex ) {
-            throw new RuntimeException( ex );
-        }
-    }
 
     @Override
     public Reservation toEntity(ReservationRequestDto request) {
@@ -43,7 +25,8 @@ public class ReservationMapperImpl implements ReservationMapper {
 
         Reservation.ReservationBuilder reservation = Reservation.builder();
 
-        reservation.endDate( request.getEndDate() );
+        reservation.type( request.getType() );
+        reservation.numberBeachTent( request.getNumberBeachTent() );
 
         return reservation.build();
     }
@@ -56,48 +39,27 @@ public class ReservationMapperImpl implements ReservationMapper {
 
         ReservationResponseDto.ReservationResponseDtoBuilder reservationResponseDto = ReservationResponseDto.builder();
 
-        reservationResponseDto.numberUnit( reservationUnitNumber( reservation ) );
+        Integer number = reservationRowNumber( reservation );
+        if ( number != null ) {
+            reservationResponseDto.rowNumber( number.longValue() );
+        }
         reservationResponseDto.userEmail( reservationUserEmail( reservation ) );
         reservationResponseDto.seaSideResortName( reservationSeaSideResortName( reservation ) );
-        reservationResponseDto.startDate( xmlGregorianCalendarToLocalDate( localDateTimeToXmlGregorianCalendar( reservation.getStartDate() ) ) );
-        reservationResponseDto.endDate( xmlGregorianCalendarToLocalDate( localDateTimeToXmlGregorianCalendar( reservation.getEndDate() ) ) );
+        reservationResponseDto.reservationDate( reservation.getReservationDate() );
+        reservationResponseDto.numberBeachTent( reservation.getNumberBeachTent() );
 
         return reservationResponseDto.build();
     }
 
-    private XMLGregorianCalendar localDateTimeToXmlGregorianCalendar( LocalDateTime localDateTime ) {
-        if ( localDateTime == null ) {
-            return null;
-        }
-
-        return datatypeFactory.newXMLGregorianCalendar(
-            localDateTime.getYear(),
-            localDateTime.getMonthValue(),
-            localDateTime.getDayOfMonth(),
-            localDateTime.getHour(),
-            localDateTime.getMinute(),
-            localDateTime.getSecond(),
-            localDateTime.get( ChronoField.MILLI_OF_SECOND ),
-            DatatypeConstants.FIELD_UNDEFINED );
-    }
-
-    private static LocalDate xmlGregorianCalendarToLocalDate( XMLGregorianCalendar xcal ) {
-        if ( xcal == null ) {
-            return null;
-        }
-
-        return LocalDate.of( xcal.getYear(), xcal.getMonth(), xcal.getDay() );
-    }
-
-    private Integer reservationUnitNumber(Reservation reservation) {
+    private Integer reservationRowNumber(Reservation reservation) {
         if ( reservation == null ) {
             return null;
         }
-        Unit unit = reservation.getUnit();
-        if ( unit == null ) {
+        Row row = reservation.getRow();
+        if ( row == null ) {
             return null;
         }
-        Integer number = unit.getNumber();
+        Integer number = row.getNumber();
         if ( number == null ) {
             return null;
         }

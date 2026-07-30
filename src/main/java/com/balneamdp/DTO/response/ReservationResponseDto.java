@@ -6,7 +6,9 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -14,9 +16,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Builder
 public class ReservationResponseDto {
-    private Integer numberUnit;
-    private LocalDate startDate;
-    private LocalDate endDate;
+    private LocalDateTime reservationDate;
     private String userEmail;
     private String seaSideResortName;
+    private Long rowNumber;
+    private Integer numberBeachTent;
+    private BigDecimal price;
 }

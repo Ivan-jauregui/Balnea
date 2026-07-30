@@ -6,11 +6,11 @@ import com.balneamdp.models.Reservation;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring",uses = {UserMapper.class, MapperSeaSideResort.class})
+@Mapper(componentModel = "spring",uses = {UserMapper.class, MapperSeaSideResort.class,RowMapper.class})
 public interface ReservationMapper {
     Reservation toEntity(ReservationRequestDto request);
 
-    @Mapping(source = " unit.number" , target="numberUnit")
+    @Mapping(source = " row.number" , target="rowNumber")
     @Mapping(source = " user.email" , target="userEmail")
     @Mapping(source = "seaSideResort.name" , target="seaSideResortName")
     ReservationResponseDto toDto(Reservation reservation);

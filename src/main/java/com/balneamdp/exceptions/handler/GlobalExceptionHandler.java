@@ -1,5 +1,6 @@
 package com.balneamdp.exceptions.handler;
 
+import com.balneamdp.exceptions.BeachTentAlreadyBookedException;
 import com.balneamdp.exceptions.ResourseNotFoundException;
 import com.balneamdp.exceptions.ressponse.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +52,19 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(BeachTentAlreadyBookedException.class)
+    public ResponseEntity<ErrorResponseDTO> handlerBeachTentAlreadyBookedException(BeachTentAlreadyBookedException ex, HttpServletRequest request){
+        ErrorResponseDTO response =new ErrorResponseDTO(
+                409,
+                HttpStatus.CONFLICT.getReasonPhrase(),
+                ex.getMessage(),
+                request.getServletPath(),
+                LocalDateTime.now(),
+                Collections.emptyMap()
+        );
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)

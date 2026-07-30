@@ -5,6 +5,7 @@ import com.balneamdp.DTO.SeaSideResortResponse;
 import com.balneamdp.DTO.request.SeaSideResortFilterDto;
 import com.balneamdp.DTO.response.CommentResponseDto;
 import com.balneamdp.DTO.response.UserResponseDto;
+import com.balneamdp.enums.PayState;
 import com.balneamdp.exceptions.ResourseNotFoundException;
 import com.balneamdp.mapper.CommentMapper;
 import com.balneamdp.mapper.MapperSeaSideResort;
@@ -16,7 +17,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
@@ -141,30 +141,6 @@ public class SeaSideResortService {
     }
 
 
-    public List<Unit> getAllPendingUnits(Long id) {
-        SeaSideResort seaSideResort = seaSideResortRepository.findById(id)
-                .orElseThrow(() -> new ResourseNotFoundException("Balneario no fue encontrado"));
-
-        return seaSideResort.getUnits().stream()
-                .filter(u -> u.getPayState() == PayState.PENDIENTE)
-                .toList();
-    }
-    public List<Unit> getAllPaidUnits(Long id){
-        SeaSideResort seaSideResort = seaSideResortRepository.findById(id)
-                .orElseThrow(() -> new ResourseNotFoundException("Balneario no fue encontrado"));
-
-        return seaSideResort.getUnits().stream()
-                .filter(u-> u.getPayState()== PayState.SEÑADO)
-                .toList();
-    }
-    public List<Unit> getAllMarkedUnits(Long id){
-        SeaSideResort seaSideResort = seaSideResortRepository.findById(id)
-                .orElseThrow(() -> new ResourseNotFoundException("Balneario no fue encontrado"));
-
-        return seaSideResort.getUnits().stream()
-                .filter(u-> u.getPayState()== PayState.PAGADO)
-                .toList();
-    }
 
     public SeaSideResort updateImage(Long id,String imageUrl,String publicId){
         SeaSideResort seaSideResort = seaSideResortRepository.findById(id)
