@@ -13,7 +13,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +24,9 @@ public class ReservationService {
     private final RowRepository rowRepository;
     private final UserRepository userRepository;
     private final SeaSideResortRepository seaSideResortRepository;
+    private final RateSeaSideResortRepository rateSeaSideResortRepository;
     private final ReservationMapper mapper;
+
 
     @Transactional
     public ReservationResponseDto save(ReservationRequestDto request) {
@@ -83,18 +87,29 @@ public class ReservationService {
     }
 
     private void calcularPeriodoReserva(Reservation reservation, SeaSideResort resort) {
-        LocalDateTime start = resort.getStartDate();
-        LocalDateTime endSeason = resort.getEndDate();
+        // Buscamos la tarifa del tipo de reserva
+        RateSeaSideResort rate = rateSeaSideResortRepository.findByReservationTypeAndSeaSideResort(reservation.getType(),resort)
+                .orElseThrow(()->new ResourseNotFoundException(
+                        "No se encontró una tarifa configurada para " + reservation.getType() + " en " + resort.getName()
+                ));
+
+        // Le asignmaos el total a la reserva
+        reservation.setTotal(rate.getPrice());
+
+        // Asignamos la fecha de inicio y fin de reserva
+        LocalDate start = resort.getStartDate();
+        LocalDate endSeason = resort.getEndDate();
 
         String tipo = reservation.getType().toString().toUpperCase();
 
+        // Calculamos el periodo de reserva
         switch (tipo) {
             case "DIA":
                 reservation.setEndDate(start);
                 break;
             case "QUINCENA":
-                LocalDateTime endFortnight = start.plusDays(14);
-                reservation.setEndDate(endFortnight.isAfter(endSeason) ? endSeason : endFortnight);
+                LocalDate endFortnight = start.plusDays(14);
+                reservation.setEndDate(endFortnight.isAfter(ChronoLocalDate.from(endSeason.atStartOfDay())) ? endSeason : endFortnight);
                 break;
             case "TEMPORADA":
                 reservation.setEndDate(endSeason);
@@ -108,7 +123,7 @@ public class ReservationService {
     // MÉTODOS DE VALIDACIÓN
     // ==========================================
 
-    private void validarLimitesDeTemporada(LocalDateTime startRequested, SeaSideResort resort) {
+    private void validarLimitesDeTemporada(LocalDate startRequested, SeaSideResort resort) {
         if (startRequested.isBefore(resort.getStartDate()) || startRequested.isAfter(resort.getEndDate())) {
             throw new IllegalArgumentException("No puedes reservar para esa fecha. El balneario opera únicamente desde el "
                     + resort.getStartDate() + " hasta el " + resort.getEndDate());
@@ -133,8 +148,8 @@ public class ReservationService {
     // MÉTODOS DE POLÍTICAS DE ESTADO
     // ==========================================
 
-    private ReservationState determinarEstadoInicialReserva(LocalDateTime resortStartDate) {
-        LocalDateTime today = LocalDateTime.now();
+    private ReservationState determinarEstadoInicialReserva(LocalDate resortStartDate) {
+        LocalDate today = LocalDate.from(LocalDateTime.now());
         int mesActual = today.getMonthValue();
         if (mesActual >= 10 || mesActual <= 4) {
             if (!today.isBefore(resortStartDate)) {

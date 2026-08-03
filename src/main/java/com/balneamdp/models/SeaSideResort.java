@@ -1,9 +1,11 @@
 package com.balneamdp.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -18,7 +20,7 @@ public class SeaSideResort {
     @Column(nullable = false,unique = true)
     private String name;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "LONGTEXT")
     private String description;
 
     @Column(nullable = false)
@@ -43,11 +45,14 @@ public class SeaSideResort {
     )
     private Set<Amenity> amenities;
 
-    @OneToMany(mappedBy = "seaSideResort")
+    @OneToMany(mappedBy = "seaSideResort",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comments> comments;
 
-    @OneToMany(mappedBy = "seaSideResort",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "seaSideResort",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Row> rows;
+
+    @OneToMany(mappedBy = "seaSideResort", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RateSeaSideResort> rates;
 
     @ManyToMany
     @JoinTable(
@@ -64,9 +69,11 @@ public class SeaSideResort {
     private String imageUrl;
     private String imagePublicId;
 
-    private LocalDateTime startDate; //Fecha de apertura del Balneario
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startDate; //Fecha de apertura del Balneario
 
-    private LocalDateTime endDate; //Fecha de cierre del Balneario
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endDate; //Fecha de cierre del Balneario
 
     @Column(nullable = false)
     private LocalDateTime created_at;

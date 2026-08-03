@@ -31,6 +31,7 @@ public class SeaSideResortService {
 
     private final SeaSideResortRepository seaSideResortRepository;
     private final AmenityRepository amenityRepository;
+    private final RowRepository rowRepository;
     private final UserRepository userRepository;
     private final CommentsRepository commentsRepository;
     private final UnitRepository unitRepository;
@@ -54,13 +55,15 @@ public class SeaSideResortService {
             throw new ResourseNotFoundException("Servicio inexistente: " + missingIds);
         }
 
-        SeaSideResort resort = mapper.toEntity(request, amenities,owner);
+        Set<Row> rows = new HashSet<>(rowRepository.findAllById(request.getRows()));
+
+
+        SeaSideResort resort = mapper.toEntity(request, amenities,owner,rows);
         resort.setCreated_at(LocalDateTime.now());
 
         SeaSideResort savedResort = seaSideResortRepository.save(resort);
 
         SeaSideResortResponse seaSideResortResponse = mapper.toDto(savedResort);
-        System.out.println(seaSideResortResponse);
         return seaSideResortResponse;
     }
 

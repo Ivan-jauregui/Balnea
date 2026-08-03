@@ -1,13 +1,12 @@
 package com.balneamdp.DTO;
 
-import com.balneamdp.models.Amenity;
-import com.balneamdp.models.User;
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+
 import java.util.Set;
 
 @Builder
@@ -35,12 +34,17 @@ public class SeaSideResortRequest {
 
     @NotNull(message = "La fecha de inicio es obligatoria")
     @FutureOrPresent(message = "No puedes introducir una fecha de apertura que ya pasó")
-    private LocalDateTime startDate; //Fecha de apertura del Balneario
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate startDate; //Fecha de apertura del Balneario
 
     @NotNull(message = "La fecha de fin es obligatoria")
     @FutureOrPresent(message = "No puedes introducir una fecha de cierre que ya pasó")
-    private LocalDateTime andDate; //Fecha de cierre del Balneario
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endDate; //Fecha de cierre del Balneario
 
     @NotEmpty(message = "Amenities is required")
     private Set<Long> amenities;
+
+    @NotEmpty(message = "rows is required")
+    private Set<Long> rows;
 }

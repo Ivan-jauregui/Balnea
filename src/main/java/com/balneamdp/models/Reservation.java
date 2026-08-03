@@ -6,6 +6,8 @@ import com.balneamdp.enums.ReservationType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -39,11 +41,13 @@ public class Reservation {
     @JoinColumn(name="seasideresort_id")
     private SeaSideResort seaSideResort; //Muchas reservas pueden ser a un balneario
 
-    private LocalDateTime startDate; // Cuando se empieza a poder usar la carpa
+    private LocalDate startDate; // Cuando se empieza a poder usar la carpa
 
-    private LocalDateTime endDate; // Cuando termina la reserva
+    private LocalDate endDate; // Cuando termina la reserva
 
     private LocalDateTime reservationDate; // Fecha en que se realizo la reserva
+
+    private BigDecimal total;
 
 
     @PrePersist

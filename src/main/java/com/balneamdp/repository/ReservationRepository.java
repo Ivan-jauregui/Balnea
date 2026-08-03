@@ -6,6 +6,7 @@ import com.balneamdp.models.SeaSideResort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -15,7 +16,7 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
             Integer numberBeachTent,
             SeaSideResort seaSideResort,
             ReservationState reservationState,
-            LocalDateTime endDate,
-            LocalDateTime startDate
+            LocalDate endDate,
+            LocalDate startDate
     );
 }

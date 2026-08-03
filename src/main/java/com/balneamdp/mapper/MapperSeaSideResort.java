@@ -3,6 +3,7 @@ package com.balneamdp.mapper;
 import com.balneamdp.DTO.SeaSideResortRequest;
 import com.balneamdp.DTO.SeaSideResortResponse;
 import com.balneamdp.models.Amenity;
+import com.balneamdp.models.Row;
 import com.balneamdp.models.SeaSideResort;
 import com.balneamdp.models.User;
 import com.balneamdp.repository.AmenityRepository;
@@ -16,7 +17,8 @@ public interface MapperSeaSideResort {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "amenities", source = "amenitiesEntities")
     @Mapping(target = "owner", source = "ownerEntity")
-    SeaSideResort toEntity(SeaSideResortRequest request, Set<Amenity> amenitiesEntities, User ownerEntity);
+    @Mapping(target = "row", source = "rowEntity")
+    SeaSideResort toEntity(SeaSideResortRequest request, Set<Amenity> amenitiesEntities, User ownerEntity, Set<Row> rowEntity);
 
     SeaSideResortResponse toDto(SeaSideResort seaSideResort);
 
