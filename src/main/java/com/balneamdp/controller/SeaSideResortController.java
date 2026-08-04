@@ -4,12 +4,10 @@ import com.balneamdp.DTO.SeaSideResortRequest;
 import com.balneamdp.DTO.SeaSideResortResponse;
 import com.balneamdp.DTO.request.ReservationRequestDto;
 import com.balneamdp.DTO.request.SeaSideResortFilterDto;
+import com.balneamdp.DTO.response.BeachTentResponseDto;
 import com.balneamdp.DTO.response.CommentResponseDto;
 import com.balneamdp.DTO.response.ReservationResponseDto;
-import com.balneamdp.models.Amenity;
-import com.balneamdp.models.Comments;
-import com.balneamdp.models.SeaSideResort;
-import com.balneamdp.models.Unit;
+import com.balneamdp.models.*;
 import com.balneamdp.service.ArchiveValidatorService;
 import com.balneamdp.service.CloudinaryService;
 import com.balneamdp.service.ReservationService;
@@ -58,19 +56,6 @@ public class SeaSideResortController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/create-units/{id}/{start}/{quantity}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Unit>> createUnits(@PathVariable Long id,
-                                            @PathVariable int start,
-                                            @PathVariable int quantity){
-        return ResponseEntity.ok(service.createUnits(id,start,quantity));
-    }
-
-    @GetMapping("/units/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<Unit>> getUnits(@PathVariable Long id){
-        return ResponseEntity.ok(service.getUnits(id));
-    }
 
     @GetMapping
             public ResponseEntity<Page<SeaSideResortResponse>> getAll(

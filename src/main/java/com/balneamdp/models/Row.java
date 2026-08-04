@@ -3,6 +3,9 @@ package com.balneamdp.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor @Builder
 public class Row {
@@ -22,8 +25,16 @@ public class Row {
     @Column(nullable = false)
     private String tag;
 
-    //Relacion con balneario correspondiente
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "seasideresort_id")
     private SeaSideResort seaSideResort;
+
+    @OneToMany(mappedBy = "row",cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<BeachTent> beachTents=new ArrayList<>();
+
+    public void addBeachTent(BeachTent beachTent){
+        beachTents.add(beachTent);
+        beachTent.setRow(this);
+    }
 }

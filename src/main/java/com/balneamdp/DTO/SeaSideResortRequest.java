@@ -1,6 +1,9 @@
 package com.balneamdp.DTO;
 
+import com.balneamdp.DTO.request.RateSeaSideResortRequest;
+import com.balneamdp.DTO.request.RowRequest;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
@@ -45,6 +48,11 @@ public class SeaSideResortRequest {
     @NotEmpty(message = "Amenities is required")
     private Set<Long> amenities;
 
-    @NotEmpty(message = "rows is required")
-    private Set<Long> rows;
+    @Valid // Validación en cascada para los objetos internos
+    @NotEmpty(message = "El balneario debe incluir al menos una fila de carpas")
+    private Set<RowRequest> rows;
+
+    @Valid // Validación en cascada para los objetos internos
+    @NotEmpty(message = "El balneario debe incluir al menos una tarifa configurada")
+    private Set<RateSeaSideResortRequest> rates;
 }

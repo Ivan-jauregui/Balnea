@@ -28,11 +28,6 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    @Transactional
-    public boolean registerUserForResort(User user,SeaSideResort seaSideResort){
-        return seaSideResort.getClients().add(user);
-    }
-
     public UserResponseDto findByEmail(String email){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourseNotFoundException("Usuario no encontrado: "));;

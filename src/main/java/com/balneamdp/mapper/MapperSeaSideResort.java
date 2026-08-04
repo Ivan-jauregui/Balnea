@@ -17,8 +17,9 @@ public interface MapperSeaSideResort {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "amenities", source = "amenitiesEntities")
     @Mapping(target = "owner", source = "ownerEntity")
-    @Mapping(target = "row", source = "rowEntity")
-    SeaSideResort toEntity(SeaSideResortRequest request, Set<Amenity> amenitiesEntities, User ownerEntity, Set<Row> rowEntity);
+    @Mapping(target = "rows", ignore = true)
+    @Mapping(target = "rates", ignore = true)
+    SeaSideResort toEntity(SeaSideResortRequest request, Set<Amenity> amenitiesEntities, User ownerEntity);
 
     SeaSideResortResponse toDto(SeaSideResort seaSideResort);
 

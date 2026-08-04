@@ -2,45 +2,51 @@ package com.balneamdp.service;
 
 import com.balneamdp.DTO.SeaSideResortRequest;
 import com.balneamdp.DTO.SeaSideResortResponse;
+import com.balneamdp.DTO.request.RateSeaSideResortRequest;
+import com.balneamdp.DTO.request.RowRequest;
 import com.balneamdp.DTO.request.SeaSideResortFilterDto;
+import com.balneamdp.DTO.response.BeachTentResponseDto;
 import com.balneamdp.DTO.response.CommentResponseDto;
 import com.balneamdp.DTO.response.UserResponseDto;
-import com.balneamdp.enums.PayState;
+import org.springframework.transaction.annotation.Transactional;
 import com.balneamdp.exceptions.ResourseNotFoundException;
-import com.balneamdp.mapper.CommentMapper;
-import com.balneamdp.mapper.MapperSeaSideResort;
-import com.balneamdp.mapper.UserMapper;
+import com.balneamdp.mapper.*;
 import com.balneamdp.models.*;
 import com.balneamdp.repository.*;
 import com.balneamdp.repository.specification.SeaSideResortSpecification;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.domain.Page;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class SeaSideResortService {
 
     private final SeaSideResortRepository seaSideResortRepository;
     private final AmenityRepository amenityRepository;
-    private final RowRepository rowRepository;
+    private final BeachTentRepository beachTentRepository;
+
     private final UserRepository userRepository;
+    private final ReservationRepository reservationRepository;
     private final CommentsRepository commentsRepository;
-    private final UnitRepository unitRepository;
+
     private final MapperSeaSideResort mapper;
     private final UserMapper userMapper;
     private final CommentMapper commentMapper;
+    private final RowMapper rowMapper;
+    private final RateMapper rateMapper;
+    private final BeachTentMapper beachTentMapper;
 
+    @Transactional
     public SeaSideResortResponse save(SeaSideResortRequest request) {
-        User owner= userRepository.findById(request.getOwnerId())
+        User owner = userRepository.findById(request.getOwnerId())
                 .orElseThrow(()-> new ResourseNotFoundException("El dueño no fue encontrado"));
 
         Set<Amenity> amenities = new HashSet<>(amenityRepository.findAllById(request.getAmenities()));
@@ -55,11 +61,16 @@ public class SeaSideResortService {
             throw new ResourseNotFoundException("Servicio inexistente: " + missingIds);
         }
 
-        Set<Row> rows = new HashSet<>(rowRepository.findAllById(request.getRows()));
+        SeaSideResort resort = mapper.toEntity(request, amenities,owner);
 
-
-        SeaSideResort resort = mapper.toEntity(request, amenities,owner,rows);
-        resort.setCreated_at(LocalDateTime.now());
+        for (RowRequest row:request.getRows()){
+            Row newRow = rowMapper.toEntity(row);
+            resort.addRow(newRow);
+        }
+        for (RateSeaSideResortRequest rate:request.getRates()){
+            RateSeaSideResort newRate = rateMapper.toEntity(rate);
+            resort.addRate(newRate);
+        }
 
         SeaSideResort savedResort = seaSideResortRepository.save(resort);
 
@@ -68,15 +79,13 @@ public class SeaSideResortService {
     }
 
 
+    @Transactional
     public void deleteByName(String name) {
         SeaSideResort resort = seaSideResortRepository.findByName(name)
                 .orElseThrow(() -> new ResourseNotFoundException("Balneario con nombre " + name + " no encontrado"));
 
         seaSideResortRepository.delete(resort);
     }
-
-
-
 
     public Page<SeaSideResortResponse> getSeaSideResorts(SeaSideResortFilterDto filter, int page, int size) {
         if (filter == null) {
@@ -104,47 +113,14 @@ public class SeaSideResortService {
     }
 
 
-        public List<SeaSideResortResponse> findAll() {
-            return seaSideResortRepository.findAll().stream()
-                    .map(mapper::toDto)
-                    .toList();
-        }
-
-    public List<UserResponseDto> getClientsByOwner(Long userId){
-         SeaSideResort seaSideResort  = seaSideResortRepository.findAll().stream()
-                 .filter(b->b.getOwner().getId()==userId)
-                 .findFirst().orElseThrow(()->new ResourseNotFoundException("Balneario no fue encontrado"));
-
-         return  seaSideResort.getClients().stream()
-                 .map(userMapper::toDto)
-                 .toList();
-    }
-
     public List<CommentResponseDto> getComments(Long seaSideResortId){
         return commentsRepository.findBySeaSideResortId(seaSideResortId).stream()
                 .map(commentMapper::toDto)
                 .toList();
     }
 
+
     @Transactional
-    public List<Unit> createUnits(Long id,int start,int quantity){
-        for(int i=0;i<quantity;i++){
-            Unit newUnit=new Unit();
-            newUnit.setNumber(start + i);
-            newUnit.setInMaintenance(false);
-            newUnit.setPayState(PayState.PENDIENTE);
-            newUnit.setSeaSideResort(seaSideResortRepository.findById(id).get());
-            unitRepository.save(newUnit);
-        }
-        return getUnits(id);
-    }
-
-    public List<Unit> getUnits(Long id){
-        return unitRepository.findAllBySeaSideResortId(id);
-    }
-
-
-
     public SeaSideResort updateImage(Long id,String imageUrl,String publicId){
         SeaSideResort seaSideResort = seaSideResortRepository.findById(id)
                 .orElseThrow(() -> new ResourseNotFoundException("Balneario no fue encontrado"));
@@ -159,6 +135,6 @@ public class SeaSideResortService {
         SeaSideResort seaSideResort = seaSideResortRepository.findById(id)
                 .orElseThrow(() -> new ResourseNotFoundException("Balneario no fue encontrado"));
 
-        return (List<Amenity>) seaSideResort.getAmenities();
+        return seaSideResort.getAmenities().stream().toList();
     }
 }

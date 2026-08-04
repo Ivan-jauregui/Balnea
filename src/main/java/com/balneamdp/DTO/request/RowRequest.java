@@ -25,7 +25,6 @@ public class RowRequest {
     @NotNull(message = "El numero de carpa es requerido")
     private Integer lastBeachTent;
 
-    @NotBlank(message = "Tipo de reserva es requerida")
     private String tag;
 
     @NotNull(message = "El id de balneario es requerido")

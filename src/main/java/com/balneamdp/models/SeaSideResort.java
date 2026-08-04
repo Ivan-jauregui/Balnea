@@ -7,6 +7,7 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -60,7 +61,6 @@ public class SeaSideResort {
             joinColumns = @JoinColumn(name = "seasideresort_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private List<User> clients;
 
     @OneToOne()
     @JoinColumn(name = "owner_id",referencedColumnName = "id")
@@ -82,5 +82,37 @@ public class SeaSideResort {
     @PrePersist
     protected void onCreate(){
         created_at=LocalDateTime.now();
+    }
+
+    // HELPER METHODS
+
+    public void addRow(Row row) {
+        if (this.rows == null) {
+            this.rows = new ArrayList<>();
+        }
+        this.rows.add(row);
+        row.setSeaSideResort(this); // Sincroniza la clave foránea
+    }
+
+    public void removeRow(Row row) {
+        if (this.rows != null) {
+            this.rows.remove(row);
+            row.setSeaSideResort(null);
+        }
+    }
+
+    public void addRate(RateSeaSideResort rate) {
+        if (this.rates == null) {
+            this.rates = new ArrayList<>();
+        }
+        this.rates.add(rate);
+        rate.setSeaSideResort(this);
+    }
+
+    public void removeRate(RateSeaSideResort rate) {
+        if (this.rates != null) {
+            this.rates.remove(rate);
+            rate.setSeaSideResort(null);
+        }
     }
 }

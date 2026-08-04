@@ -29,6 +29,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> role = new HashSet<>();
-    @ManyToMany(mappedBy = "clients") // "clients" es el nombre de la lista en SeaSideResort
-    private List<SeaSideResort> balneariosVisitados;
+
+    @OneToMany(mappedBy = "user")
+    private List<Reservation> reservations;
 }

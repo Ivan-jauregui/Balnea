@@ -19,7 +19,7 @@ public class Reservation {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private ReservationType type;
+    private ReservationType type; // DIA,QUICENA,MES,TEMPORADA
 
     @Enumerated(EnumType.STRING)
     private ReservationState reservationState; // ACTIVA, CANCELADA, EXPIRADA
@@ -27,19 +27,17 @@ public class Reservation {
     @Enumerated(EnumType.STRING)
     private PayState payState; // PAGADO, PENDIENTE
 
-    @ManyToOne
-    @JoinColumn(name = "row_id")
-    private Row row; // Muchas reservas pueden ser a un fila
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "beach_tent_id")
+    private BeachTent beachTent;
 
-    private Integer numberBeachTent; // Numero de carpa
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user; //Muchas reservas pueden ser de un usuario en especifico
+    private User user;
 
-    @ManyToOne
-    @JoinColumn(name="seasideresort_id")
-    private SeaSideResort seaSideResort; //Muchas reservas pueden ser a un balneario
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="sea_sideresort_id")
+    private SeaSideResort seaSideResort;
 
     private LocalDate startDate; // Cuando se empieza a poder usar la carpa
 
