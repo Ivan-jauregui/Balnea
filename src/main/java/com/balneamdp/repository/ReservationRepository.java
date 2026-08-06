@@ -29,14 +29,23 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     @Query("SELECT DISTINCT r.user FROM Reservation r WHERE r.seaSideResort.id = :resortId")
     List<User> findDistinctClientsBySeaSideResortId(@Param("resortId") Long resortId);
 
-
     @Query("SELECT COALESCE(SUM(r.totalPrice), 0.0) FROM Reservation r " +
             "WHERE MONTH(r.reservationDate) = :month " +
             "AND YEAR(r.reservationDate) = :year " +
             "AND r.seaSideResort.id = :resortId")
-    Double getMonthlyRevenueByResortAndMonth(
+    Double getTotalRevenueByResortAndMonthAndYear(
             @Param("resortId") Long resortId,
             @Param("month") int month,
+            @Param("year") int year
+    );
+
+    @Query("SELECT MONTH(r.reservationDate), SUM(r.totalPrice) " +
+            "FROM Reservation r " +
+            "WHERE YEAR(r.reservationDate) = :year "  +
+            "AND r.seaSideResort.id = :resortId " +
+            "GROUP BY MONTH(r.reservationDate)")
+    List<Object[]> getAnnualMonthlyRevenueBreakdownByResort(
+            @Param("resortId") Long resortId,
             @Param("year") int year
     );
 }
