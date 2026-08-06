@@ -1,15 +1,16 @@
 package com.balneamdp.controller;
 
+import com.balneamdp.DTO.SeaSideResortResponse;
+import com.balneamdp.DTO.request.ReservationFitlerDto;
+import com.balneamdp.DTO.request.SeaSideResortFilterDto;
 import com.balneamdp.DTO.response.BeachTentResponseDto;
 import com.balneamdp.DTO.response.UserResponseDto;
 import com.balneamdp.service.ResortDashboardService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -37,5 +38,13 @@ public class OwnerDashboardController {
     @GetMapping("/{seaSideResortId}/year-revenue")
     public ResponseEntity<Map<Integer,Double>> getYearRevenue(@PathVariable Long seaSideResortId){
         return ResponseEntity.ok(resortDashboardService.getYearRevenue(seaSideResortId));
+    }
+    @GetMapping
+    public ResponseEntity<Page<SeaSideResortResponse>> getReservations(
+            @ModelAttribute ReservationFitlerDto filter,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(resortDashboardService.getReservations(filter, page, size));
     }
 }

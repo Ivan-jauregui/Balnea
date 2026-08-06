@@ -5,6 +5,9 @@ import com.balneamdp.models.BeachTent;
 import com.balneamdp.models.Reservation;
 import com.balneamdp.models.SeaSideResort;
 import com.balneamdp.models.User;
+import io.micrometer.observation.ObservationFilter;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -48,4 +51,5 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
             @Param("resortId") Long resortId,
             @Param("year") int year
     );
+
 }

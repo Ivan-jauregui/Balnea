@@ -1,15 +1,27 @@
 package com.balneamdp.service;
 
+import com.balneamdp.DTO.SeaSideResortResponse;
+import com.balneamdp.DTO.request.ReservationFitlerDto;
+import com.balneamdp.DTO.request.SeaSideResortFilterDto;
 import com.balneamdp.DTO.response.BeachTentResponseDto;
 import com.balneamdp.DTO.response.UserResponseDto;
 import com.balneamdp.exceptions.ResourseNotFoundException;
 import com.balneamdp.mapper.BeachTentMapper;
+import com.balneamdp.mapper.ReservationMapper;
 import com.balneamdp.mapper.UserMapper;
 import com.balneamdp.models.BeachTent;
+import com.balneamdp.models.Reservation;
+import com.balneamdp.models.SeaSideResort;
 import com.balneamdp.repository.BeachTentRepository;
 import com.balneamdp.repository.ReservationRepository;
 import com.balneamdp.repository.SeaSideResortRepository;
+import com.balneamdp.repository.specification.ReservationSpecification;
+import com.balneamdp.repository.specification.SeaSideResortSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,12 +36,28 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ResortDashboardService {
+    private final ReservationRepository reservationRepository;
+    private final ReservationMapper reservationMapper;
 
     private final SeaSideResortRepository seaSideResortRepository;
     private final BeachTentRepository beachTentRepository;
-    private final ReservationRepository reservationRepository;
     private final UserMapper userMapper;
     private final BeachTentMapper beachTentMapper;
+
+
+
+    public Page<SeaSideResortResponse> getReservations(ReservationFitlerDto filter, int page, int size) {
+        if (filter == null) {
+            filter = new ReservationFitlerDto();
+        }
+
+        Specification<Reservation> spec = ReservationSpecification.byFilter(filter);
+        Pageable pageable = PageRequest.of(page, size);
+
+        return reservationRepository.findAll(spec,pageable).map(reservationMapper::toDto);
+    }
+
+
 
     public List<UserResponseDto> getClients(Long seaSideResortId) {
         validateResortExists(seaSideResortId);
