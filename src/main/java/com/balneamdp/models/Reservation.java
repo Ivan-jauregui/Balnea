@@ -28,6 +28,10 @@ public class Reservation {
     private PayState payState; // PAGADO, PENDIENTE
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "row_id")
+    private Row row;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "beach_tent_id")
     private BeachTent beachTent;
 

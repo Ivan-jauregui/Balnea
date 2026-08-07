@@ -20,12 +20,10 @@ import java.util.Optional;
 
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation,Long> {
-    boolean existsByNumberBeachTentAndSeaSideResortAndReservationStateAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+    boolean existsByNumberBeachTentAndSeaSideResortAndReservationState(
             Integer numberBeachTent,
             SeaSideResort seaSideResort,
-            ReservationState reservationState,
-            LocalDate endDate,
-            LocalDate startDate
+            ReservationState reservationState
     );
 
     List<Reservation> findBySeaSideResort_Id(Long seaSideResortId);
@@ -50,6 +48,21 @@ public interface ReservationRepository extends JpaRepository<Reservation,Long> {
     List<Object[]> getAnnualMonthlyRevenueBreakdownByResort(
             @Param("resortId") Long resortId,
             @Param("year") int year
+    );
+
+
+    @Query("""
+    SELECT COUNT(r) > 0 FROM Reservation r
+    WHERE r.beachTent.id = :beachTentId
+      AND r.reservationState IN :states
+      AND r.startDate <= :endDate
+      AND r.endDate >= :startDate
+""")
+    boolean existsOverlappingReservation(
+            @Param("beachTentId") Long beachTentId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("states") List<ReservationState> states
     );
 
 }

@@ -35,4 +35,7 @@ public class ReservationRequestDto {
     // La carpa que se eligirá
     @NotNull(message = "El numero de carpa es requerido")
     private Integer numberBeachTent;
+
+    @NotNull(message = "La fecha de inicio es requerida")
+    private LocalDate startDate;
 }

@@ -4,6 +4,7 @@ import com.balneamdp.DTO.request.ReservationRequestDto;
 import com.balneamdp.DTO.response.ReservationResponseDto;
 import com.balneamdp.enums.PayState;
 import com.balneamdp.enums.ReservationState;
+import com.balneamdp.enums.ReservationType;
 import com.balneamdp.exceptions.BeachTentAlreadyBookedException;
 import com.balneamdp.exceptions.ResourseNotFoundException;
 import com.balneamdp.mapper.ReservationMapper;
@@ -13,158 +14,127 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
-    private final ReservationRepository repository;
+
+    private final ReservationRepository reservationRepository;
     private final RowRepository rowRepository;
+    private final BeachTentRepository beachTentRepository;
     private final UserRepository userRepository;
     private final SeaSideResortRepository seaSideResortRepository;
     private final RateSeaSideResortRepository rateSeaSideResortRepository;
     private final ReservationMapper mapper;
-
+    private final Clock clock; // Inyectar Clock facilita pruebas unitarias de fechas
 
     @Transactional
     public ReservationResponseDto save(ReservationRequestDto request) {
-        // 1. Carga de datos y entidades relacionadas
-        SeaSideResort seaSideResort = obtenerBalneario(request.getSeaSideResortId());
+        SeaSideResort resort = obtenerBalneario(request.getSeaSideResortId());
         User user = obtenerUsuario(request.getUserId());
-        Row row = obtenerFila(request.getNumberRow(), seaSideResort);
+        Row row = obtenerFila(request.getNumberRow(), resort);
+        BeachTent beachTent = obtenerCarpa(resort, request.getNumberBeachTent());
 
-        // 2. Construcción inicial de la entidad
-        Reservation reservation = inicializarReserva(request, user, row, seaSideResort);
+        LocalDate startDate = request.getStartDate();
+        LocalDate endDate = calcularFechaFin(startDate, request.getType(), resort);
 
-        // 3. Cálculos de negocio y asignación de tiempos
-        calcularPeriodoReserva(reservation, seaSideResort);
+        validarLimitesDeTemporada(startDate, endDate, resort);
+        validarDisponibilidadCarpa(beachTent, startDate, endDate);
 
-        // 4. Validaciones estrictas de fechas y disponibilidad de la carpa
-        validarLimitesDeTemporada(reservation.getStartDate(), seaSideResort);
-        validarDisponibilidadCarpa(reservation, seaSideResort);
+        RateSeaSideResort rate = obtenerTarifa(request.getType(), resort);
 
-        // 5. Asignación de estados finales basados en políticas del negocio
-        reservation.setReservationState(determinarEstadoInicialReserva(seaSideResort.getStartDate()));
-        reservation.setPayState(determinarEstadoPagoInicial(request.getType().toString().toUpperCase()));
-
-        // 6. Persistencia y respuesta
-        Reservation savedReservation = repository.save(reservation);
-        return mapper.toDto(savedReservation);
-    }
-
-    // ==========================================
-    // MÉTODOS MODULARIZADOS DE BÚSQUEDA
-    // ==========================================
-
-    private SeaSideResort obtenerBalneario(Long id) {
-        return seaSideResortRepository.findById(id)
-                .orElseThrow(() -> new ResourseNotFoundException("Balneario no encontrado"));
-    }
-
-    private User obtenerUsuario(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourseNotFoundException("El usuario no fue encontrado"));
-    }
-
-    private Row obtenerFila(Integer numberRow, SeaSideResort resort) {
-        return rowRepository.findByNumberAndSeaSideResort(numberRow, resort)
-                .orElseThrow(() -> new ResourseNotFoundException("La fila no fue encontrada"));
-    }
-
-    // ==========================================
-    // MÉTODOS DE ESTRUCTURA Y CÁLCULO
-    // ==========================================
-
-    private Reservation inicializarReserva(ReservationRequestDto request, User user, Row row, SeaSideResort resort) {
         Reservation reservation = mapper.toEntity(request);
         reservation.setSeaSideResort(resort);
         reservation.setUser(user);
         reservation.setRow(row);
-       reservation.setStartDate(resort.getStartDate());
-        return reservation;
-    }
-
-    private void calcularPeriodoReserva(Reservation reservation, SeaSideResort resort) {
-        // Buscamos la tarifa del tipo de reserva
-        RateSeaSideResort rate = rateSeaSideResortRepository.findByReservationTypeAndSeaSideResort(reservation.getType(),resort)
-                .orElseThrow(()->new ResourseNotFoundException(
-                        "No se encontró una tarifa configurada para " + reservation.getType() + " en " + resort.getName()
-                ));
-
-        // Le asignmaos el total a la reserva
+        reservation.setBeachTent(beachTent);
+        reservation.setStartDate(startDate);
+        reservation.setEndDate(endDate);
         reservation.setTotal(rate.getPrice());
+        reservation.setReservationState(determinarEstadoInicialReserva(startDate));
+        reservation.setPayState(determinarEstadoPagoInicial(request.getType()));
 
-        // Asignamos la fecha de inicio y fin de reserva
-        LocalDate start = resort.getStartDate();
-        LocalDate endSeason = resort.getEndDate();
-
-        String tipo = reservation.getType().toString().toUpperCase();
-
-        // Calculamos el periodo de reserva
-        switch (tipo) {
-            case "DIA":
-                reservation.setEndDate(start);
-                break;
-            case "QUINCENA":
-                LocalDate endFortnight = start.plusDays(14);
-                reservation.setEndDate(endFortnight.isAfter(ChronoLocalDate.from(endSeason.atStartOfDay())) ? endSeason : endFortnight);
-                break;
-            case "TEMPORADA":
-                reservation.setEndDate(endSeason);
-                break;
-            default:
-                throw new IllegalArgumentException("Tipo de reserva no reconocido: " + tipo);
-        }
+        Reservation saved = reservationRepository.save(reservation);
+        return mapper.toDto(saved);
     }
 
-    // ==========================================
-    // MÉTODOS DE VALIDACIÓN
-    // ==========================================
-
-    private void validarLimitesDeTemporada(LocalDate startRequested, SeaSideResort resort) {
-        if (startRequested.isBefore(resort.getStartDate()) || startRequested.isAfter(resort.getEndDate())) {
-            throw new IllegalArgumentException("No puedes reservar para esa fecha. El balneario opera únicamente desde el "
-                    + resort.getStartDate() + " hasta el " + resort.getEndDate());
-        }
+    private SeaSideResort obtenerBalneario(Long id) {
+        return seaSideResortRepository.findById(id)
+                .orElseThrow(() -> new ResourseNotFoundException("Balneario no encontrado. ID: " + id));
     }
 
-    private void validarDisponibilidadCarpa(Reservation reservation, SeaSideResort resort) {
-        boolean yaEstaOcupada = repository.existsByNumberBeachTentAndSeaSideResortAndReservationStateAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
-                reservation.getNumberBeachTent(),
-                resort,
-                ReservationState.ACTIVA,
-                reservation.getEndDate(),
-                reservation.getStartDate()
+    private User obtenerUsuario(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourseNotFoundException("Usuario no encontrado. ID: " + id));
+    }
+
+    private Row obtenerFila(Integer numberRow, SeaSideResort resort) {
+        return rowRepository.findByNumberAndSeaSideResort(numberRow, resort)
+                .orElseThrow(() -> new ResourseNotFoundException("Fila no encontrada: " + numberRow));
+    }
+
+    private BeachTent obtenerCarpa(SeaSideResort resort, Integer numberBeachTent) {
+        return beachTentRepository.findByRowSeaSideResortAndNumber(resort, numberBeachTent)
+                .orElseThrow(() -> new ResourseNotFoundException("Carpa no encontrada número: " + numberBeachTent));
+    }
+
+    private RateSeaSideResort obtenerTarifa(ReservationType type, SeaSideResort resort) {
+        return rateSeaSideResortRepository.findByReservationTypeAndSeaSideResort(type, resort)
+                .orElseThrow(() -> new ResourseNotFoundException(
+                        "No existe tarifa configurada para " + type + " en " + resort.getName()));
+    }
+
+    private void validarDisponibilidadCarpa(BeachTent tent, LocalDate start, LocalDate end) {
+        // Validación de superposición real en BD:
+        // Existen reservas que solapen el rango [start, end]
+        boolean ocupada = reservationRepository.existsOverlappingReservation(
+                tent.getId(),
+                start,
+                end,
+                List.of(ReservationState.ACTIVA, ReservationState.PENDIENTE_DE_TEMPORADA)
         );
 
-        if (yaEstaOcupada) {
-            throw new BeachTentAlreadyBookedException("La carpa número " + reservation.getNumberBeachTent() + " ya está reservada y activa.");
+        if (ocupada) {
+            throw new BeachTentAlreadyBookedException(
+                    "La carpa #" + tent.getNumber() + " no está disponible para el período seleccionado.");
         }
     }
 
-    // ==========================================
-    // MÉTODOS DE POLÍTICAS DE ESTADO
-    // ==========================================
-
-    private ReservationState determinarEstadoInicialReserva(LocalDate resortStartDate) {
-        LocalDate today = LocalDate.from(LocalDateTime.now());
-        int mesActual = today.getMonthValue();
-        if (mesActual >= 10 || mesActual <= 4) {
-            if (!today.isBefore(resortStartDate)) {
-                return ReservationState.ACTIVA;
+    private LocalDate calcularFechaFin(LocalDate start, ReservationType type, SeaSideResort resort) {
+        return switch (type) {
+            case DIA -> start;
+            case QUINCENA -> {
+                LocalDate fortnightEnd = start.plusDays(14);
+                yield fortnightEnd.isAfter(resort.getEndDate()) ? resort.getEndDate() : fortnightEnd;
             }
-            return ReservationState.PENDIENTE_DE_TEMPORADA;
-        } else {
-            throw new IllegalArgumentException("No puedes reservar fuera de temporada");
+            case TEMPORADA -> resort.getEndDate();
+        };
+    }
+
+    private void validarLimitesDeTemporada(LocalDate start, LocalDate end, SeaSideResort resort) {
+        if (start.isBefore(resort.getStartDate()) || end.isAfter(resort.getEndDate())) {
+            throw new IllegalArgumentException(String.format(
+                    "El balneario opera del %s al %s. El rango solicitado (%s a %s) está fuera de temporada.",
+                    resort.getStartDate(), resort.getEndDate(), start, end));
         }
     }
 
-    private PayState determinarEstadoPagoInicial(String tipo) {
-        if ("QUINCENA".equals(tipo) || "TEMPORADA".equals(tipo)) {
-            return PayState.PENDIENTE;
+    private ReservationState determinarEstadoInicialReserva(LocalDate startDate) {
+        LocalDate today = LocalDate.now(clock);
+
+        if (startDate.isBefore(today)) {
+            throw new IllegalArgumentException("No se pueden realizar reservas para fechas pasadas.");
         }
-        return PayState.PAGADO;
+
+        return startDate.isAfter(today) ? ReservationState.PENDIENTE_DE_TEMPORADA : ReservationState.ACTIVA;
+    }
+
+    private PayState determinarEstadoPagoInicial(ReservationType type) {
+        return (type == ReservationType.QUINCENA || type == ReservationType.TEMPORADA)
+                ? PayState.PENDIENTE
+                : PayState.PAGADO;
     }
 }
