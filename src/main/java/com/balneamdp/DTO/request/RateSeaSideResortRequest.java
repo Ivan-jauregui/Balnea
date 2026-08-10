@@ -18,6 +18,5 @@ public class RateSeaSideResortRequest {
     @NotNull(message = "El precio de la tarifa es requerido")
     private BigDecimal price;
 
-    @NotNull(message = "El id del balneario es requerido")
     private Long seaSideResortId;
 }

@@ -29,7 +29,7 @@ public class ReservationService {
     private final SeaSideResortRepository seaSideResortRepository;
     private final RateSeaSideResortRepository rateSeaSideResortRepository;
     private final ReservationMapper mapper;
-    private final Clock clock; // Inyectar Clock facilita pruebas unitarias de fechas
+    //private final Clock clock; // Inyectar Clock facilita pruebas unitarias de fechas
 
     @Transactional
     public ReservationResponseDto save(ReservationRequestDto request) {
@@ -88,8 +88,6 @@ public class ReservationService {
     }
 
     private void validarDisponibilidadCarpa(BeachTent tent, LocalDate start, LocalDate end) {
-        // Validación de superposición real en BD:
-        // Existen reservas que solapen el rango [start, end]
         boolean ocupada = reservationRepository.existsOverlappingReservation(
                 tent.getId(),
                 start,
@@ -123,7 +121,7 @@ public class ReservationService {
     }
 
     private ReservationState determinarEstadoInicialReserva(LocalDate startDate) {
-        LocalDate today = LocalDate.now(clock);
+        LocalDate today = LocalDate.now();
 
         if (startDate.isBefore(today)) {
             throw new IllegalArgumentException("No se pueden realizar reservas para fechas pasadas.");

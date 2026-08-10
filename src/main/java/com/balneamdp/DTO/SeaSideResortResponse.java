@@ -1,6 +1,7 @@
 package com.balneamdp.DTO;
 
 import com.balneamdp.models.Amenity;
+import com.balneamdp.models.RateSeaSideResort;
 import lombok.*;
 
 import java.math.BigDecimal;

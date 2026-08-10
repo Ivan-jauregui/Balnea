@@ -27,6 +27,5 @@ public class RowRequest {
 
     private String tag;
 
-    @NotNull(message = "El id de balneario es requerido")
     private Long seaSideResortId;
 }

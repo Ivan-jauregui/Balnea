@@ -10,5 +10,7 @@ import java.util.Optional;
 public interface BeachTentRepository extends JpaRepository<BeachTent,Long> {
     List<BeachTent> findByRowSeaSideResortId(Long seaSideRepositoryId);
 
+    List<BeachTent> findByRow_SeaSideResort_Id(Long seaSideResortId);
+
     Optional<BeachTent> findByRowSeaSideResortAndNumber(SeaSideResort seaSideResort,Integer numberBeachTent);
 }

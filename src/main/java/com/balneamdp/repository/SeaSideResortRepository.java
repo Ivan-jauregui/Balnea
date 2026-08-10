@@ -11,5 +11,4 @@ import java.util.Optional;
 public interface SeaSideResortRepository extends JpaRepository<SeaSideResort,Long>, JpaSpecificationExecutor<SeaSideResort> {
     Optional<SeaSideResort> findByName(String name);
 
-    List<BeachTent> findByRow_SeaSideResort_Id(Long seaSideResortId);
 }

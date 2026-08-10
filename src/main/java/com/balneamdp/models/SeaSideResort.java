@@ -55,13 +55,6 @@ public class SeaSideResort {
     @OneToMany(mappedBy = "seaSideResort", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RateSeaSideResort> rates;
 
-    @ManyToMany
-    @JoinTable(
-            name = "seasideresort_clients",
-            joinColumns = @JoinColumn(name = "seasideresort_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-
     @OneToOne()
     @JoinColumn(name = "owner_id",referencedColumnName = "id")
     private User owner;
