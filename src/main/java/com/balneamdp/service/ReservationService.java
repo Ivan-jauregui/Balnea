@@ -5,23 +5,22 @@ import com.balneamdp.DTO.response.ReservationResponseDto;
 import com.balneamdp.enums.PayState;
 import com.balneamdp.enums.ReservationState;
 import com.balneamdp.enums.ReservationType;
-import com.balneamdp.exceptions.BeachTentAlreadyBookedException;
 import com.balneamdp.exceptions.ResourseNotFoundException;
 import com.balneamdp.mapper.ReservationMapper;
 import com.balneamdp.models.*;
 import com.balneamdp.repository.*;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Clock;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.StructuredTaskScope.Subtask;
 
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
 
+    private final ReservationTxService reservationTxService;
     private final ReservationRepository reservationRepository;
     private final RowRepository rowRepository;
     private final BeachTentRepository beachTentRepository;
@@ -29,22 +28,94 @@ public class ReservationService {
     private final SeaSideResortRepository seaSideResortRepository;
     private final RateSeaSideResortRepository rateSeaSideResortRepository;
     private final ReservationMapper mapper;
-    //private final Clock clock; // Inyectar Clock facilita pruebas unitarias de fechas
 
-    @Transactional
+    // Records privados para empaquetar los resultados de cada fase concurrente
+    private record InitialContext(SeaSideResort resort, User user) {}
+    private record DetailsContext(Row row, BeachTent beachTent, RateSeaSideResort rate) {}
+
     public ReservationResponseDto save(ReservationRequestDto request) {
-        SeaSideResort resort = obtenerBalneario(request.getSeaSideResortId());
-        User user = obtenerUsuario(request.getUserId());
-        Row row = obtenerFila(request.getNumberRow(), resort);
-        BeachTent beachTent = obtenerCarpa(resort, request.getNumberBeachTent());
 
+        // 1. Fase 1 Concurrente: Consultar Balneario y Usuario
+        InitialContext initial = consultarDatosInicialesEnParalelo(request.getSeaSideResortId(), request.getUserId());
+
+        // 2. Validaciones de Fechas (En Memoria / CPU)
         LocalDate startDate = request.getStartDate();
-        LocalDate endDate = calcularFechaFin(startDate, request.getType(), resort);
+        LocalDate endDate = calcularFechaFin(startDate, request.getType(), initial.resort());
+        validarLimitesDeTemporada(startDate, endDate, initial.resort());
 
-        validarLimitesDeTemporada(startDate, endDate, resort);
-        validarDisponibilidadCarpa(beachTent, startDate, endDate);
+        // 3. Fase 2 Concurrente: Consultar Fila, Carpa y Tarifa
+        DetailsContext details = consultarDetallesEnParalelo(request, initial.resort());
 
-        RateSeaSideResort rate = obtenerTarifa(request.getType(), resort);
+        // 4. Mapeo modularizado de la Entidad
+        Reservation reservation = construirEntidadReserva(
+                request, initial.resort(), initial.user(),
+                details.row(), details.beachTent(), details.rate(),
+                startDate, endDate
+        );
+
+        // 5. Guardado atómico con Transacción Corta (<5ms)
+        Reservation saved = reservationTxService.confirmReservation(
+                reservation,
+                details.beachTent().getId(),
+                startDate,
+                endDate
+        );
+
+        return mapper.toDto(saved);
+    }
+
+
+    // HELPER CONCURRENTE 1: Fase 1 (Virtual Threads)
+    // =========================================================================
+    private InitialContext consultarDatosInicialesEnParalelo(Long resortId, Long userId) {
+        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+
+            Subtask<SeaSideResort> resortTask = scope.fork(() -> obtenerBalneario(resortId));
+            Subtask<User> userTask          = scope.fork(() -> obtenerUsuario(userId));
+
+            scope.join();
+            scope.throwIfFailed();
+
+            return new InitialContext(resortTask.get(), userTask.get());
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupción al consultar balneario y usuario", e);
+        } catch (Exception e) {
+            throw rethrowUnchecked(e);
+        }
+    }
+
+
+    // HELPER CONCURRENTE 2: Fase 2 (Virtual Threads)
+    // =========================================================================
+    private DetailsContext consultarDetallesEnParalelo(ReservationRequestDto request, SeaSideResort resort) {
+        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+
+            Subtask<Row> rowTask            = scope.fork(() -> obtenerFila(request.getNumberRow(), resort));
+            Subtask<BeachTent> tentTask     = scope.fork(() -> obtenerCarpa(resort, request.getNumberBeachTent()));
+            Subtask<RateSeaSideResort> rateTask = scope.fork(() -> obtenerTarifa(request.getType(), resort));
+
+            scope.join();
+            scope.throwIfFailed();
+
+            return new DetailsContext(rowTask.get(), tentTask.get(), rateTask.get());
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupción al consultar fila, carpa y tarifa", e);
+        } catch (Exception e) {
+            throw rethrowUnchecked(e);
+        }
+    }
+
+
+    // HELPER DE MAPEO
+    // =========================================================================
+    private Reservation construirEntidadReserva(
+            ReservationRequestDto request, SeaSideResort resort, User user,
+            Row row, BeachTent beachTent, RateSeaSideResort rate,
+            LocalDate startDate, LocalDate endDate) {
 
         Reservation reservation = mapper.toEntity(request);
         reservation.setSeaSideResort(resort);
@@ -56,11 +127,12 @@ public class ReservationService {
         reservation.setTotal(rate.getPrice());
         reservation.setReservationState(determinarEstadoInicialReserva(startDate));
         reservation.setPayState(determinarEstadoPagoInicial(request.getType()));
-
-        Reservation saved = reservationRepository.save(reservation);
-        return mapper.toDto(saved);
+        return reservation;
     }
 
+
+    // HELPERS DE BÚSQUEDA (Repositorios)
+    // =========================================================================
     private SeaSideResort obtenerBalneario(Long id) {
         return seaSideResortRepository.findById(id)
                 .orElseThrow(() -> new ResourseNotFoundException("Balneario no encontrado. ID: " + id));
@@ -87,20 +159,9 @@ public class ReservationService {
                         "No existe tarifa configurada para " + type + " en " + resort.getName()));
     }
 
-    private void validarDisponibilidadCarpa(BeachTent tent, LocalDate start, LocalDate end) {
-        boolean ocupada = reservationRepository.existsOverlappingReservation(
-                tent.getId(),
-                start,
-                end,
-                List.of(ReservationState.ACTIVA, ReservationState.PENDIENTE_DE_TEMPORADA)
-        );
 
-        if (ocupada) {
-            throw new BeachTentAlreadyBookedException(
-                    "La carpa #" + tent.getNumber() + " no está disponible para el período seleccionado.");
-        }
-    }
-
+    // HELPERS DE REGLAS DE NEGOCIO
+    // =========================================================================
     private LocalDate calcularFechaFin(LocalDate start, ReservationType type, SeaSideResort resort) {
         return switch (type) {
             case DIA -> start;
@@ -122,11 +183,9 @@ public class ReservationService {
 
     private ReservationState determinarEstadoInicialReserva(LocalDate startDate) {
         LocalDate today = LocalDate.now();
-
         if (startDate.isBefore(today)) {
             throw new IllegalArgumentException("No se pueden realizar reservas para fechas pasadas.");
         }
-
         return startDate.isAfter(today) ? ReservationState.PENDIENTE_DE_TEMPORADA : ReservationState.ACTIVA;
     }
 
@@ -134,5 +193,11 @@ public class ReservationService {
         return (type == ReservationType.QUINCENA || type == ReservationType.TEMPORADA)
                 ? PayState.PENDIENTE
                 : PayState.PAGADO;
+    }
+
+    // Helper para relanzar excepciones checked como unchecked de forma limpia
+    private RuntimeException rethrowUnchecked(Exception e) {
+        if (e instanceof RuntimeException re) return re;
+        return new RuntimeException(e);
     }
 }
