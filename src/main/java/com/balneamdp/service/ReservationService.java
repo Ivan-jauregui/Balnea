@@ -4,6 +4,8 @@ import com.balneamdp.DTO.request.ReservationRequestDto;
 import com.balneamdp.DTO.response.ReservationResponseDto;
 import com.balneamdp.enums.PayState;
 import com.balneamdp.enums.ReservationState;
+import com.balneamdp.enums.ReservationType;
+import com.balneamdp.exceptions.BeachTentAlreadyBookedException;
 import com.balneamdp.exceptions.ResourseNotFoundException;
 import com.balneamdp.mapper.ReservationMapper;
 import com.balneamdp.models.*;
