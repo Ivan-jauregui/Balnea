@@ -51,7 +51,12 @@
             <artifactId>cloudinary-http44</artifactId>
             <version>1.38.0</version>
         </dependency>
-
+        <!-- Mercado Pago -->
+        <dependency>
+            <groupId>com.mercadopago</groupId>
+            <artifactId>sdk-java</artifactId>
+            <version>2.1.7</version>
+        </dependency>
         <!-- Validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -168,6 +173,11 @@
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <source>24</source>
+                    <target>24</target>
+                    <compilerArgs>--enable-preview</compilerArgs>
+                </configuration>
             </plugin>
         </plugins>
     </build>

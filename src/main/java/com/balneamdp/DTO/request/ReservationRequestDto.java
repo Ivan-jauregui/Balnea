@@ -24,10 +24,6 @@ public class ReservationRequestDto {
     @NotNull(message = "El id de balneario es requerido")
     private Long seaSideResortId;
 
-    // Tipo de reserva que se querra efectuar
-    @NotBlank(message = "Tipo de reserva es requerida")
-    private ReservationType type;
-
     // La fila que se querra seleccionar
     @NotNull(message = "El numero de fila es requerido")
     private Integer numberRow;
@@ -38,4 +34,8 @@ public class ReservationRequestDto {
 
     @NotNull(message = "La fecha de inicio es requerida")
     private LocalDate startDate;
+    @NotNull(message = "La fecha de fin es requerida")
+    private LocalDate endDate;
+
+    private boolean payPartial;
 }

@@ -3,6 +3,7 @@ package com.balneamdp.exceptions.handler;
 import com.balneamdp.exceptions.BeachTentAlreadyBookedException;
 import com.balneamdp.exceptions.ResourseNotFoundException;
 import com.balneamdp.exceptions.ressponse.ErrorResponseDTO;
+import com.balneamdp.exceptions.ressponse.PaymentProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,6 +78,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> hanlderIllegalArgumentException(IllegalArgumentException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(PaymentProcessingException.class)
+    public ResponseEntity<Map<String, String>> handlePaymentProcessingException(PaymentProcessingException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Pasarela de Pago");
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(response);
     }
 
 }

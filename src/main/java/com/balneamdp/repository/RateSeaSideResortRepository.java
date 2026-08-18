@@ -12,4 +12,6 @@ import java.util.Optional;
 public interface RateSeaSideResortRepository extends JpaRepository<RateSeaSideResort, Long> {
 
     Optional<RateSeaSideResort> findByReservationTypeAndSeaSideResort(ReservationType reservationType, SeaSideResort seaSideResort);
+
+    RateSeaSideResort findBySeaSideResortId(Long id);
 }

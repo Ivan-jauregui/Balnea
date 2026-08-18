@@ -25,7 +25,7 @@ public class Reservation {
     private ReservationState reservationState; // ACTIVA, CANCELADA, EXPIRADA
 
     @Enumerated(EnumType.STRING)
-    private PayState payState; // PAGADO, PENDIENTE
+    private PayState payState; // PAGADO, SEÑADO, PENDIENTE
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "row_id")

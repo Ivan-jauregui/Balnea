@@ -22,4 +22,6 @@ public class ReservationResponseDto {
     private Long rowNumber;
     private Integer numberBeachTent;
     private BigDecimal price;
+
+    private String initPoint;
 }
