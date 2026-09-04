@@ -7,10 +7,7 @@ import com.balneamdp.models.BeachTent;
 import com.balneamdp.models.User;
 import lombok.*;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor @Builder
+@Getter @Setter @AllArgsConstructor @NoArgsConstructor @Builder
 public class ReservationFitlerDto {
     private ReservationState reservationState;
     private PayState payState;

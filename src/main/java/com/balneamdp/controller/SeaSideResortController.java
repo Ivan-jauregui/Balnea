@@ -6,12 +6,10 @@ import com.balneamdp.DTO.request.ReservationRequestDto;
 import com.balneamdp.DTO.request.SeaSideResortFilterDto;
 import com.balneamdp.DTO.response.BeachTentResponseDto;
 import com.balneamdp.DTO.response.CommentResponseDto;
+import com.balneamdp.DTO.response.PublicationResponseDto;
 import com.balneamdp.DTO.response.ReservationResponseDto;
 import com.balneamdp.models.*;
-import com.balneamdp.service.ArchiveValidatorService;
-import com.balneamdp.service.CloudinaryService;
-import com.balneamdp.service.ReservationService;
-import com.balneamdp.service.SeaSideResortService;
+import com.balneamdp.service.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,6 +33,7 @@ public class SeaSideResortController {
     private final ReservationService reservationService;
     private final ArchiveValidatorService archiveValidatorService;
     private final CloudinaryService cloudinaryService;
+    private final PublicationService publicationService;
 
     @PostMapping
     //@PreAuthorize("hasRole('ADMIN')")
@@ -111,6 +110,10 @@ public class SeaSideResortController {
     @GetMapping("amenities/{id}")
     public ResponseEntity<List<Amenity>> getServices(@PathVariable Long id){
         return ResponseEntity.ok(service.getServices(id));
+    }
+
+    public ResponseEntity<List<PublicationResponseDto>> findAllPublicationBySeaSideResort(@PathVariable Long seaSideResortId){
+        return  ResponseEntity.ok(publicationService.findAllPublicationBySeaSideResort(seaSideResortId));
     }
 
 }

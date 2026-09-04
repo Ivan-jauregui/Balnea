@@ -27,7 +27,6 @@ public class PaymentWebhookController {
             paymentWebhookService.processNotification(dataId);
         }
 
-        // Siempre responder 200 OK a MP para confirmar recepción
         return ResponseEntity.ok().build();
     }
 }
