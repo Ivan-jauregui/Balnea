@@ -10,6 +10,8 @@ import com.balneamdp.DTO.response.PublicationResponseDto;
 import com.balneamdp.DTO.response.ReservationResponseDto;
 import com.balneamdp.models.*;
 import com.balneamdp.service.*;
+import com.mercadopago.exceptions.MPApiException;
+import com.mercadopago.exceptions.MPException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -43,7 +45,7 @@ public class SeaSideResortController {
 
 
     @PostMapping("/pay")
-    public ResponseEntity<ReservationResponseDto> makeReserve(@Valid @RequestBody ReservationRequestDto request){
+    public ResponseEntity<ReservationResponseDto> makeReserve(@Valid @RequestBody ReservationRequestDto request) throws MPException, MPApiException {
         return ResponseEntity.ok(reservationService.save(request));
     }
 

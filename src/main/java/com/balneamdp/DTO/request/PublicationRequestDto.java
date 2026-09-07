@@ -17,5 +17,5 @@ public class PublicationRequestDto {
     private String imagePublicId;
 
     @NotNull(message = "id es balneario es requerido")
-    private Long SeaSideResort;
+    private Long seaSideResortId;
 }

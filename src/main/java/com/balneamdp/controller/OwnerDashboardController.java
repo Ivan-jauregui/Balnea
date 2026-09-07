@@ -1,5 +1,6 @@
 package com.balneamdp.controller;
 
+import com.balneamdp.DTO.request.PublicationRequestDto;
 import com.balneamdp.DTO.request.ReservationFitlerDto;
 import com.balneamdp.DTO.response.BeachTentResponseDto;
 import com.balneamdp.DTO.response.PublicationResponseDto;

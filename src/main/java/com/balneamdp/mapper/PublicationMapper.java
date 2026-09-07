@@ -2,6 +2,7 @@ package com.balneamdp.mapper;
 
 import com.balneamdp.DTO.response.PublicationResponseDto;
 import com.balneamdp.DTO.request.PublicationRequestDto;
+import com.balneamdp.models.Publication;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring",uses = {MapperSeaSideResort.class})

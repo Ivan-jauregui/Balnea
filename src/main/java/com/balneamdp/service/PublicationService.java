@@ -22,7 +22,7 @@ public class PublicationService {
     private final PublicationMapper publicationMapper;
 
     public PublicationResponseDto save(PublicationRequestDto request){
-        SeaSideResort seaSideResort = seaSideResortRepository.findById(request.getSeaSideResort)
+        SeaSideResort seaSideResort = seaSideResortRepository.findById(request.getSeaSideResortId())
                 .orElseThrow(()->new ResourseNotFoundException("Balneario no encontrado"));
 
         Publication publication = publicationMapper.toEntity(request);
@@ -32,14 +32,23 @@ public class PublicationService {
         return publicationMapper.toDto(publication);
     }
 
-    public List<PublicationResponseDto> findAllPublicationBySeaSideResort(Long seaSideResortId){
-        return publicationRepository.findBySeaSideResortId(seaSideResortId).stream()
+    public List<PublicationResponseDto> findAllPublicationBySeaSideResort(Long seaSideResortId) {
+        List<Publication> publications = publicationRepository.findBySeaSideResortId(seaSideResortId);
+
+        if (publications.isEmpty()) {
+            throw new ResourseNotFoundException("No se encontraron publicaciones para el balneario con ID: " + seaSideResortId);
+        }
+
+        return publications.stream()
                 .map(publicationMapper::toDto)
-                .orElseThrow(() -> new ResourseNotFoundException("Balneario no encontrado"));
+                .toList();
     }
 
-    public PublicationResponseDto findById(Long id){
-        return publicationRepository.findById(id);
+    public PublicationResponseDto findById(Long id) {
+        Publication publication = publicationRepository.findById(id)
+                .orElseThrow(() -> new ResourseNotFoundException("Publicación no encontrada con ID: " + id));
+
+        return publicationMapper.toDto(publication);
     }
 
     public void deleteById(Long id){

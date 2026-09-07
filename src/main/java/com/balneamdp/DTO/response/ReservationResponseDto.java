@@ -21,7 +21,7 @@ public class ReservationResponseDto {
     private String seaSideResortName;
     private Long rowNumber;
     private Integer numberBeachTent;
-    private BigDecimal price;
+    private BigDecimal total;
 
     private String initPoint;
 }

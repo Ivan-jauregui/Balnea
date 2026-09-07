@@ -19,9 +19,6 @@ public class Reservation {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    private ReservationType type; // DIA,QUICENA,MES,TEMPORADA
-
-    @Enumerated(EnumType.STRING)
     private ReservationState reservationState; // ACTIVA, CANCELADA, EXPIRADA
 
     @Enumerated(EnumType.STRING)

@@ -86,18 +86,19 @@ public class ReservationService {
         );
 
         response.setInitPoint(initPoint);
+        response.setNumberBeachTent(details.beachTent.getNumber());
+        response.setTotal(total);
 
         return response;
     }
 
     private InitialContext consultarDatosInicialesEnParalelo(Long resortId, Long userId) {
-        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+        try (var scope = StructuredTaskScope.open(StructuredTaskScope.Joiner.awaitAllSuccessfulOrThrow())) {
 
             Subtask<SeaSideResort> resortTask = scope.fork(() -> obtenerBalneario(resortId));
-            Subtask<User> userTask          = scope.fork(() -> obtenerUsuario(userId));
+            Subtask<User> userTask = scope.fork(() -> obtenerUsuario(userId));
 
             scope.join();
-            scope.throwIfFailed();
 
             return new InitialContext(resortTask.get(), userTask.get());
 
@@ -110,13 +111,12 @@ public class ReservationService {
     }
 
     private DetailsContext consultarDetallesEnParalelo(ReservationRequestDto request, SeaSideResort resort) {
-        try (var scope = new StructuredTaskScope.ShutdownOnFailure()) {
+        try (var scope = StructuredTaskScope.open(StructuredTaskScope.Joiner.awaitAllSuccessfulOrThrow())) {
 
             Subtask<Row> rowTask        = scope.fork(() -> obtenerFila(request.getNumberRow(), resort));
             Subtask<BeachTent> tentTask = scope.fork(() -> obtenerCarpa(resort, request.getNumberBeachTent()));
 
             scope.join();
-            scope.throwIfFailed();
 
             return new DetailsContext(rowTask.get(), tentTask.get());
 
