@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-09-06T21:34:28-0300",
+    date = "2026-09-07T09:56:39-0300",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 25.0.2 (Oracle Corporation)"
 )
 @Component
@@ -25,8 +25,6 @@ public class PublicationMapperImpl implements PublicationMapper {
 
         publication.title( request.getTitle() );
         publication.description( request.getDescription() );
-        publication.imageUrl( request.getImageUrl() );
-        publication.imagePublicId( request.getImagePublicId() );
 
         return publication.build();
     }
@@ -43,7 +41,6 @@ public class PublicationMapperImpl implements PublicationMapper {
         publicationResponseDto.title( publication.getTitle() );
         publicationResponseDto.description( publication.getDescription() );
         publicationResponseDto.imageUrl( publication.getImageUrl() );
-        publicationResponseDto.imagePublicId( publication.getImagePublicId() );
         if ( publication.getCreatedAt() != null ) {
             publicationResponseDto.createdAt( DateTimeFormatter.ISO_LOCAL_DATE_TIME.format( publication.getCreatedAt() ) );
         }

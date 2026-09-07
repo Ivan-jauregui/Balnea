@@ -9,22 +9,24 @@
     @Service
     public class ArchiveValidatorService {
 
-        private static final List<String> permittedType= Arrays.asList(
-                "image/jpeg",
-                "image/jpg",
-                "image/png",
-                "image/webp"
-        );
+        private static final List<String> PERMITTED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "webp");
 
 
-        public void valditeFile(MultipartFile archivo) throws IllegalAccessException {
-            if(archivo==null || archivo.isEmpty()){
-                throw new IllegalAccessException("El archivo no puede estar vacio");
+        public void validateFile(MultipartFile archivo) {
+            if (archivo == null || archivo.isEmpty()) {
+                throw new IllegalArgumentException("El archivo no puede estar vacío");
             }
 
-            String contentType=archivo.getContentType();
-            if(contentType==null || !permittedType.contains(contentType)){
-                throw new IllegalAccessException("Formato Invalido. Solo se aceptan formatos JPEG,PNG Y WEBP");
+            String fileName = archivo.getOriginalFilename();
+            if (fileName == null || !fileName.contains(".")) {
+                throw new IllegalArgumentException("El archivo no tiene una extensión válida");
+            }
+
+            // Extrae la extensión del nombre del archivo (ejemplo: "balneario-12.png" -> "png")
+            String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase().trim();
+
+            if (!PERMITTED_EXTENSIONS.contains(extension)) {
+                throw new IllegalArgumentException("Formato Inválido. Solo se aceptan extensiones JPG, JPEG, PNG y WEBP");
             }
         }
     }

@@ -7,6 +7,5 @@ public class PublicationResponseDto {
     private String title;
     private String description;
     private String imageUrl;
-    private String imagePublicId;
     private String createdAt;
 }

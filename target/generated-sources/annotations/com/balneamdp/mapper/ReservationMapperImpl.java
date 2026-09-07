@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-09-06T21:34:28-0300",
+    date = "2026-09-07T09:56:39-0300",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 25.0.2 (Oracle Corporation)"
 )
 @Component
@@ -46,6 +46,7 @@ public class ReservationMapperImpl implements ReservationMapper {
         reservationResponseDto.userEmail( reservationUserEmail( reservation ) );
         reservationResponseDto.seaSideResortName( reservationSeaSideResortName( reservation ) );
         reservationResponseDto.reservationDate( reservation.getReservationDate() );
+        reservationResponseDto.total( reservation.getTotal() );
 
         return reservationResponseDto.build();
     }

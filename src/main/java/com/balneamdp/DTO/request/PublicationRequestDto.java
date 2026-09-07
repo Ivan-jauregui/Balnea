@@ -2,6 +2,7 @@ package com.balneamdp.DTO.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor @Builder
 public class PublicationRequestDto {
@@ -10,12 +11,6 @@ public class PublicationRequestDto {
 
     private String description;
 
-    @NotBlank(message = "Debes ingresar una imagen")
-    private String imageUrl;
-
-    @NotBlank(message = "Debes ingresar una imagen")
-    private String imagePublicId;
-
-    @NotNull(message = "id es balneario es requerido")
-    private Long seaSideResortId;
+    @NotNull(message = "La imagen es obligatoria")
+    private MultipartFile image;
 }

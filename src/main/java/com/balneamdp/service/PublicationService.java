@@ -9,28 +9,48 @@ import com.balneamdp.models.SeaSideResort;
 import com.balneamdp.repository.PublicationRepository;
 import com.balneamdp.repository.SeaSideResortRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class PublicationService {
     private final PublicationRepository publicationRepository;
     private final SeaSideResortRepository seaSideResortRepository;
+    private final CloudinaryService cloudinaryService;
+    private final ArchiveValidatorService archiveValidatorService;
 
     private final PublicationMapper publicationMapper;
 
-    public PublicationResponseDto save(PublicationRequestDto request){
-        SeaSideResort seaSideResort = seaSideResortRepository.findById(request.getSeaSideResortId())
-                .orElseThrow(()->new ResourseNotFoundException("Balneario no encontrado"));
+    public PublicationResponseDto save(PublicationRequestDto request, Long seaSideResortId) {
+        SeaSideResort seaSideResort = seaSideResortRepository.findById(seaSideResortId)
+                .orElseThrow(() -> new ResourseNotFoundException("Balneario no encontrado"));
 
-        Publication publication = publicationMapper.toEntity(request);
+        try {
+            archiveValidatorService.validateFile(request.getImage());
+            Map<String, Object> response = cloudinaryService.uploadImage(request.getImage(), "seaSideResortPublication");
 
-        publication.setSeaSideResort(seaSideResort);
+            String urlImage = (String) response.get("secure_url");
+            String publicId = (String) response.get("public_id");
 
-        return publicationMapper.toDto(publication);
+            Publication publication = publicationMapper.toEntity(request);
+            publication.setImageUrl(urlImage);
+            publication.setImagePublicId(publicId);
+            publication.setSeaSideResort(seaSideResort);
+
+            Publication savedPublication = publicationRepository.save(publication);
+
+            return publicationMapper.toDto(savedPublication);
+        } catch (IOException e) {
+            throw new RuntimeException("Error al procesar el archivo en Cloudinary", e);
+        }
     }
+
 
     public List<PublicationResponseDto> findAllPublicationBySeaSideResort(Long seaSideResortId) {
         List<Publication> publications = publicationRepository.findBySeaSideResortId(seaSideResortId);
@@ -45,6 +65,7 @@ public class PublicationService {
     }
 
     public PublicationResponseDto findById(Long id) {
+
         Publication publication = publicationRepository.findById(id)
                 .orElseThrow(() -> new ResourseNotFoundException("Publicación no encontrada con ID: " + id));
 

@@ -92,7 +92,7 @@ public class SeaSideResortController {
     public ResponseEntity<?> uploadImage(@PathVariable Long id, @RequestParam("archive") MultipartFile archive){
 
         try{
-            archiveValidatorService.valditeFile(archive);
+            archiveValidatorService.validateFile(archive);
             Map<String,Object> response= cloudinaryService.uploadImage(archive,"seaSideResort");
 
             String urlImage = (String) response.get("secure_url");
@@ -102,8 +102,6 @@ public class SeaSideResortController {
 
             return  ResponseEntity.ok(updatedResort);
 
-        } catch (IllegalAccessException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // ✅ 400 con mensaje
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al procesar el archivo");
         }

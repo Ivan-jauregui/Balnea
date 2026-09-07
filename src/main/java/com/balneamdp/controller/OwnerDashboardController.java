@@ -8,8 +8,10 @@ import com.balneamdp.DTO.response.ReservationResponseDto;
 import com.balneamdp.DTO.response.UserResponseDto;
 import com.balneamdp.service.PublicationService;
 import com.balneamdp.service.ResortDashboardService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +24,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/{seaSideResortId}/dashboard")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN') and @resortSecurity.isOwner(#seaSideResortId, authentication.name)")
+@PreAuthorize("hasRole('ADMIN') and @securityService.casAccessSeaSideResort(#seaSideResortId, authentication.name)")
 public class OwnerDashboardController {
     private final ResortDashboardService resortDashboardService;
     private final PublicationService publicationService;
@@ -59,18 +61,24 @@ public class OwnerDashboardController {
 
 
     /* ---Publication--- */
-    public ResponseEntity<PublicationResponseDto> addPublication(@RequestBody PublicationRequestDto request){
-        return ResponseEntity.status(HttpStatus.CREATED).body(publicationService.save(request));
+    @PostMapping(value = "/publication", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<PublicationResponseDto> addPublication(@PathVariable("seaSideResortId") Long seaSideResortId,
+                                                                 @ModelAttribute @Valid PublicationRequestDto request){
+        PublicationResponseDto response = publicationService.save(request,seaSideResortId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+    @GetMapping("publications")
+    public ResponseEntity<List<PublicationResponseDto>> findAllPublicationBySeaSideResort(@PathVariable("seaSideResortId") Long seaSideResortId){
+        return  ResponseEntity.ok(publicationService.findAllPublicationBySeaSideResort(seaSideResortId));
+    }
+    @GetMapping("publication/{id}")
+    public ResponseEntity<PublicationResponseDto> findByIdPublication(@PathVariable("id") Long id){
+        return  ResponseEntity.ok(publicationService.findById(id));
+    }
+    @DeleteMapping("publications/{id}")
     public ResponseEntity<Void> deletePublcationById(@PathVariable Long id){
         publicationService.deleteById(id);
         return ResponseEntity.noContent().build();
-    }
-    public ResponseEntity<List<PublicationResponseDto>> findAllPublicationBySeaSideResort(@PathVariable Long seaSideResortId){
-        return  ResponseEntity.ok(publicationService.findAllPublicationBySeaSideResort(seaSideResortId));
-    }
-    public ResponseEntity<PublicationResponseDto> findByIdPublciation(@PathVariable Long id){
-        return  ResponseEntity.ok(publicationService.findById(id));
     }
 
 }
