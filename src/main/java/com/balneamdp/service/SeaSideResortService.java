@@ -67,10 +67,9 @@ public class SeaSideResortService {
             Row newRow = rowMapper.toEntity(row);
             resort.addRow(newRow);
         }
-        for (RateSeaSideResortRequest rate:request.getRates()){
-            RateSeaSideResort newRate = rateMapper.toEntity(rate);
-            resort.addRate(newRate);
-        }
+
+        RateSeaSideResort newRate = rateMapper.toEntity(request.getRates());
+        resort.addRate(newRate);
 
         SeaSideResort savedResort = seaSideResortRepository.save(resort);
 

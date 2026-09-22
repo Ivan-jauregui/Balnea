@@ -29,9 +29,6 @@ public class SeaSideResortRequest {
     @NotBlank(message = "zone is required")
     private String zone;
 
-    @NotNull(message = "Price is required")
-    private BigDecimal price;
-
     @NotNull(message = "Owner ID is required")
     private Long ownerId;
 
@@ -53,6 +50,6 @@ public class SeaSideResortRequest {
     private Set<RowRequest> rows;
 
     @Valid // Validación en cascada para los objetos internos
-    @NotEmpty(message = "El balneario debe incluir al menos una tarifa configurada")
-    private Set<RateSeaSideResortRequest> rates;
+    @NotNull(message = "El balneario debe incluir una tarifa configurada")
+    private RateSeaSideResortRequest rates;
 }

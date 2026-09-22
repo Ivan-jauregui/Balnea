@@ -16,6 +16,5 @@ public class SeaSideResortResponse {
     private String address;
     private String zone;
     private Set<Amenity> amenities;
-    private BigDecimal price;
     private String imageUrl;
 }

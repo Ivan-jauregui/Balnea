@@ -27,12 +27,7 @@ public class SeaSideResort {
     @Column(nullable = false)
     private String address;
 
-
     private String zone;
-
-    @Column(nullable = false)
-    private BigDecimal price;
-
 
     // Coordenadas para el mapa
     private Double latitude;

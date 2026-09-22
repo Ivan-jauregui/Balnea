@@ -11,12 +11,13 @@ import java.math.BigDecimal;
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor @Builder
 public class RateSeaSideResortRequest {
 
-    @NotNull(message = "El tipo de reserva es requerido")
-    private ReservationType reservationType;
+    @NotNull(message = "El precio base de la tarifa es requerido")
+    @Positive(message = "El precio base debe ser mayor a 0")
+    private BigDecimal basePrice;
 
-    @Positive(message = "El precio de la tarifa debe ser mayor a 0")
-    @NotNull(message = "El precio de la tarifa es requerido")
-    private BigDecimal price;
+    @NotNull(message = "El precio de temporada es requerido")
+    @Positive(message = "El precio de temporada debe ser mayor a 0")
+    private BigDecimal seasonalPrice;
 
     private Long seaSideResortId;
 }

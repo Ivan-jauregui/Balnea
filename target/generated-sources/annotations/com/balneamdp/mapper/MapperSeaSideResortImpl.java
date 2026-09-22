@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-09-07T09:56:39-0300",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 25.0.2 (Oracle Corporation)"
+    date = "2026-09-22T09:46:16-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 25.0.4.1 (Microsoft)"
 )
 @Component
 public class MapperSeaSideResortImpl implements MapperSeaSideResort {
@@ -31,7 +31,6 @@ public class MapperSeaSideResortImpl implements MapperSeaSideResort {
             seaSideResort.description( request.getDescription() );
             seaSideResort.address( request.getAddress() );
             seaSideResort.zone( request.getZone() );
-            seaSideResort.price( request.getPrice() );
             seaSideResort.startDate( request.getStartDate() );
             seaSideResort.endDate( request.getEndDate() );
         }
@@ -60,7 +59,6 @@ public class MapperSeaSideResortImpl implements MapperSeaSideResort {
         if ( set != null ) {
             seaSideResortResponse.amenities( new LinkedHashSet<Amenity>( set ) );
         }
-        seaSideResortResponse.price( seaSideResort.getPrice() );
         seaSideResortResponse.imageUrl( seaSideResort.getImageUrl() );
 
         return seaSideResortResponse.build();
