@@ -67,14 +67,6 @@ public class OwnerDashboardController {
         PublicationResponseDto response = publicationService.save(request,seaSideResortId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-    @GetMapping("publications")
-    public ResponseEntity<List<PublicationResponseDto>> findAllPublicationBySeaSideResort(@PathVariable("seaSideResortId") Long seaSideResortId){
-        return  ResponseEntity.ok(publicationService.findAllPublicationBySeaSideResort(seaSideResortId));
-    }
-    @GetMapping("publication/{id}")
-    public ResponseEntity<PublicationResponseDto> findByIdPublication(@PathVariable("id") Long id){
-        return  ResponseEntity.ok(publicationService.findById(id));
-    }
     @DeleteMapping("publications/{id}")
     public ResponseEntity<Void> deletePublcationById(@PathVariable Long id){
         publicationService.deleteById(id);

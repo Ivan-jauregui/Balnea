@@ -59,7 +59,7 @@ public class SeaSideResortController {
 
 
     @GetMapping
-            public ResponseEntity<Page<SeaSideResortResponse>> getAll(
+    public ResponseEntity<Page<SeaSideResortResponse>> getAll(
                     @ModelAttribute SeaSideResortFilterDto filter,
                     @RequestParam(defaultValue = "0") int page,
                     @RequestParam(defaultValue = "10") int size

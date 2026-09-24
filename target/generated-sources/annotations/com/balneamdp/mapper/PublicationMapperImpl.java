@@ -3,14 +3,13 @@ package com.balneamdp.mapper;
 import com.balneamdp.DTO.request.PublicationRequestDto;
 import com.balneamdp.DTO.response.PublicationResponseDto;
 import com.balneamdp.models.Publication;
-import java.time.format.DateTimeFormatter;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-09-22T09:46:15-0300",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 25.0.4.1 (Microsoft)"
+    date = "2026-09-23T20:14:10-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 25.0.2 (Oracle Corporation)"
 )
 @Component
 public class PublicationMapperImpl implements PublicationMapper {
@@ -41,9 +40,7 @@ public class PublicationMapperImpl implements PublicationMapper {
         publicationResponseDto.title( publication.getTitle() );
         publicationResponseDto.description( publication.getDescription() );
         publicationResponseDto.imageUrl( publication.getImageUrl() );
-        if ( publication.getCreatedAt() != null ) {
-            publicationResponseDto.createdAt( DateTimeFormatter.ISO_LOCAL_DATE_TIME.format( publication.getCreatedAt() ) );
-        }
+        publicationResponseDto.createdAt( publication.getCreatedAt() );
 
         return publicationResponseDto.build();
     }
