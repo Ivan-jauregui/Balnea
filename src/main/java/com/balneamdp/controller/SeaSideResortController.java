@@ -4,10 +4,8 @@ import com.balneamdp.DTO.SeaSideResortRequest;
 import com.balneamdp.DTO.SeaSideResortResponse;
 import com.balneamdp.DTO.request.ReservationRequestDto;
 import com.balneamdp.DTO.request.SeaSideResortFilterDto;
-import com.balneamdp.DTO.response.BeachTentResponseDto;
-import com.balneamdp.DTO.response.CommentResponseDto;
-import com.balneamdp.DTO.response.PublicationResponseDto;
-import com.balneamdp.DTO.response.ReservationResponseDto;
+import com.balneamdp.DTO.request.SolicitudeRequestDto;
+import com.balneamdp.DTO.response.*;
 import com.balneamdp.models.*;
 import com.balneamdp.service.*;
 import com.mercadopago.exceptions.MPApiException;
@@ -36,6 +34,7 @@ public class SeaSideResortController {
     private final ArchiveValidatorService archiveValidatorService;
     private final CloudinaryService cloudinaryService;
     private final PublicationService publicationService;
+    private final SolicitudeService solicitudeService;
 
     @PostMapping
     //@PreAuthorize("hasRole('ADMIN')")
@@ -47,6 +46,12 @@ public class SeaSideResortController {
     @PostMapping("/pay")
     public ResponseEntity<ReservationResponseDto> makeReserve(@Valid @RequestBody ReservationRequestDto request) throws MPException, MPApiException {
         return ResponseEntity.ok(reservationService.save(request));
+    }
+
+    @PostMapping("/solicitude")
+    public ResponseEntity<SolicitudeResponseDto> makeSolictude(@Valid @RequestBody SolicitudeRequestDto request) {
+        SolicitudeResponseDto response = solicitudeService.save(request);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
 

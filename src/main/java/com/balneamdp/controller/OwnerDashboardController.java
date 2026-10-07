@@ -2,12 +2,10 @@ package com.balneamdp.controller;
 
 import com.balneamdp.DTO.request.PublicationRequestDto;
 import com.balneamdp.DTO.request.ReservationFitlerDto;
-import com.balneamdp.DTO.response.BeachTentResponseDto;
-import com.balneamdp.DTO.response.PublicationResponseDto;
-import com.balneamdp.DTO.response.ReservationResponseDto;
-import com.balneamdp.DTO.response.UserResponseDto;
+import com.balneamdp.DTO.response.*;
 import com.balneamdp.service.PublicationService;
 import com.balneamdp.service.ResortDashboardService;
+import com.balneamdp.service.SolicitudeService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -22,13 +20,12 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/{seaSideResortId}/dashboard")
+@RequestMapping("/api/v1/dashboard")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('ADMIN') and @securityService.casAccessSeaSideResort(#seaSideResortId, authentication.name)")
 public class OwnerDashboardController {
     private final ResortDashboardService resortDashboardService;
     private final PublicationService publicationService;
-
+    private final SolicitudeService solicitudeService;
 
     /* ---Metrics--- */
     @GetMapping("/monthly-revenue")
@@ -71,6 +68,18 @@ public class OwnerDashboardController {
     public ResponseEntity<Void> deletePublcationById(@PathVariable Long id){
         publicationService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/solicitude")
+    public ResponseEntity<List<SolicitudeResponseDto>> getAllSolicitude() {
+        List<SolicitudeResponseDto> responses = solicitudeService.findAll();
+        return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/solicitude/{id}")
+    public ResponseEntity<SolicitudeResponseDto> getBySolicitudeId(@PathVariable Long id) {
+        SolicitudeResponseDto response = solicitudeService.findById(id);
+        return ResponseEntity.ok(response);
     }
 
 }
